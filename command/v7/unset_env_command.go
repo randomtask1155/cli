@@ -1,48 +1,38 @@
 package v7
 
 import (
-	"net/http"
-
 	"code.cloudfoundry.org/cli/actor/actionerror"
 	"code.cloudfoundry.org/cli/actor/sharedaction"
 	"code.cloudfoundry.org/cli/actor/v7action"
-	"code.cloudfoundry.org/cli/api/cloudcontroller/ccerror"
-	"code.cloudfoundry.org/cli/api/cloudcontroller/ccversion"
 	"code.cloudfoundry.org/cli/command"
 	"code.cloudfoundry.org/cli/command/flag"
-	"code.cloudfoundry.org/cli/command/translatableerror"
 	"code.cloudfoundry.org/cli/command/v7/shared"
 )
 
-//go:generate counterfeiter . V3UnsetEnvActor
+//go:generate counterfeiter . UnsetEnvActor
 
-type V3UnsetEnvActor interface {
-	CloudControllerAPIVersion() string
+type UnsetEnvActor interface {
 	UnsetEnvironmentVariableByApplicationNameAndSpace(appName string, spaceGUID string, EnvironmentVariableName string) (v7action.Warnings, error)
 }
 
-type V3UnsetEnvCommand struct {
+type UnsetEnvCommand struct {
 	RequiredArgs    flag.UnsetEnvironmentArgs `positional-args:"yes"`
-	usage           interface{}               `usage:"CF_NAME v3-unset-env APP_NAME ENV_VAR_NAME"`
+	usage           interface{}               `usage:"CF_NAME unset-env APP_NAME ENV_VAR_NAME"`
 	relatedCommands interface{}               `related_commands:"v3-apps, env, v3-restart, set-env, v3-stage"`
 
 	UI          command.UI
 	Config      command.Config
 	SharedActor command.SharedActor
-	Actor       V3UnsetEnvActor
+	Actor       UnsetEnvActor
 }
 
-func (cmd *V3UnsetEnvCommand) Setup(config command.Config, ui command.UI) error {
+func (cmd *UnsetEnvCommand) Setup(config command.Config, ui command.UI) error {
 	cmd.UI = ui
 	cmd.Config = config
 	cmd.SharedActor = sharedaction.NewActor(config)
 
 	ccClient, _, err := shared.NewClients(config, ui, true, "")
 	if err != nil {
-		if v3Err, ok := err.(ccerror.V3UnexpectedResponseError); ok && v3Err.ResponseCode == http.StatusNotFound {
-			return translatableerror.MinimumCFAPIVersionNotMetError{MinimumVersion: ccversion.MinVersionApplicationFlowV3}
-		}
-
 		return err
 	}
 	cmd.Actor = v7action.NewActor(ccClient, config, nil, nil)
@@ -50,15 +40,9 @@ func (cmd *V3UnsetEnvCommand) Setup(config command.Config, ui command.UI) error 
 	return nil
 }
 
-func (cmd V3UnsetEnvCommand) Execute(args []string) error {
-	cmd.UI.DisplayWarning(command.ExperimentalWarning)
+func (cmd UnsetEnvCommand) Execute(args []string) error {
 
-	err := command.MinimumCCAPIVersionCheck(cmd.Actor.CloudControllerAPIVersion(), ccversion.MinVersionApplicationFlowV3)
-	if err != nil {
-		return err
-	}
-
-	err = cmd.SharedActor.CheckTarget(true, true)
+	err := cmd.SharedActor.CheckTarget(true, true)
 	if err != nil {
 		return err
 	}

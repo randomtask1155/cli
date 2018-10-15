@@ -1,18 +1,16 @@
-package experimental
+package isolated
 
 import (
 	"fmt"
 
-	"code.cloudfoundry.org/cli/api/cloudcontroller/ccversion"
 	"code.cloudfoundry.org/cli/integration/helpers"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
 	. "github.com/onsi/gomega/gexec"
-	. "github.com/onsi/gomega/ghttp"
 )
 
-var _ = Describe("v3-unset-env command", func() {
+var _ = Describe("unset-env command", func() {
 	var (
 		orgName    string
 		spaceName  string
@@ -30,12 +28,12 @@ var _ = Describe("v3-unset-env command", func() {
 	Describe("help", func() {
 		When("--help flag is set", func() {
 			It("displays command usage to output", func() {
-				session := helpers.CF("v3-unset-env", "--help")
+				session := helpers.CF("unset-env", "--help")
 
 				Eventually(session).Should(Say("NAME:"))
-				Eventually(session).Should(Say("v3-unset-env - Remove an env variable from an app"))
+				Eventually(session).Should(Say("unset-env - Remove an env variable from an app"))
 				Eventually(session).Should(Say("USAGE:"))
-				Eventually(session).Should(Say("cf v3-unset-env APP_NAME ENV_VAR_NAME"))
+				Eventually(session).Should(Say("cf unset-env APP_NAME ENV_VAR_NAME"))
 				Eventually(session).Should(Say("SEE ALSO:"))
 				Eventually(session).Should(Say("env, set-env, v3-apps, v3-restart, v3-stage"))
 				Eventually(session).Should(Exit(0))
@@ -45,7 +43,7 @@ var _ = Describe("v3-unset-env command", func() {
 
 	When("the app name is not provided", func() {
 		It("tells the user that the app name is required, prints help text, and exits 1", func() {
-			session := helpers.CF("v3-unset-env")
+			session := helpers.CF("unset-env")
 
 			Eventually(session.Err).Should(Say("Incorrect Usage: the required arguments `APP_NAME` and `ENV_VAR_NAME` were not provided"))
 			Eventually(session).Should(Say("NAME:"))
@@ -55,7 +53,7 @@ var _ = Describe("v3-unset-env command", func() {
 
 	When("ENV_VAR_NAME is not provided", func() {
 		It("tells the user that ENV_VAR_NAME is required, prints help text, and exits 1", func() {
-			session := helpers.CF("v3-unset-env", appName)
+			session := helpers.CF("unset-env", appName)
 
 			Eventually(session.Err).Should(Say("Incorrect Usage: the required argument `ENV_VAR_NAME` was not provided"))
 			Eventually(session).Should(Say("NAME:"))
@@ -63,50 +61,7 @@ var _ = Describe("v3-unset-env command", func() {
 		})
 	})
 
-	It("displays the experimental warning", func() {
-		session := helpers.CF("v3-unset-env", appName, envVarName)
-		Eventually(session.Err).Should(Say("This command is in EXPERIMENTAL stage and may change without notice"))
-		Eventually(session).Should(Exit())
-	})
-
 	When("the environment is not setup correctly", func() {
-		When("the v3 api does not exist", func() {
-			var server *Server
-
-			BeforeEach(func() {
-				server = helpers.StartAndTargetServerWithoutV3API()
-			})
-
-			AfterEach(func() {
-				server.Close()
-			})
-
-			It("fails with error message that the minimum version is not met", func() {
-				session := helpers.CF("v3-unset-env", appName, envVarName)
-				Eventually(session).Should(Say("FAILED"))
-				Eventually(session.Err).Should(Say("This command requires CF API version 3\\.27\\.0 or higher\\."))
-				Eventually(session).Should(Exit(1))
-			})
-		})
-
-		When("the v3 api version is lower than the minimum version", func() {
-			var server *Server
-
-			BeforeEach(func() {
-				server = helpers.StartAndTargetServerWithAPIVersions(helpers.DefaultV2Version, ccversion.MinV3ClientVersion)
-			})
-
-			AfterEach(func() {
-				server.Close()
-			})
-
-			It("fails with error message that the minimum version is not met", func() {
-				session := helpers.CF("v3-unset-env", appName, envVarName)
-				Eventually(session).Should(Say("FAILED"))
-				Eventually(session.Err).Should(Say("This command requires CF API version 3\\.27\\.0 or higher\\."))
-				Eventually(session).Should(Exit(1))
-			})
-		})
 
 		When("no API endpoint is set", func() {
 			BeforeEach(func() {
@@ -114,7 +69,7 @@ var _ = Describe("v3-unset-env command", func() {
 			})
 
 			It("fails with no API endpoint set message", func() {
-				session := helpers.CF("v3-unset-env", appName, envVarName)
+				session := helpers.CF("unset-env", appName, envVarName)
 				Eventually(session).Should(Say("FAILED"))
 				Eventually(session.Err).Should(Say("No API endpoint set\\. Use 'cf login' or 'cf api' to target an endpoint\\."))
 				Eventually(session).Should(Exit(1))
@@ -127,7 +82,7 @@ var _ = Describe("v3-unset-env command", func() {
 			})
 
 			It("fails with not logged in message", func() {
-				session := helpers.CF("v3-unset-env", appName, envVarName)
+				session := helpers.CF("unset-env", appName, envVarName)
 				Eventually(session).Should(Say("FAILED"))
 				Eventually(session.Err).Should(Say("Not logged in\\. Use 'cf login' to log in\\."))
 				Eventually(session).Should(Exit(1))
@@ -141,7 +96,7 @@ var _ = Describe("v3-unset-env command", func() {
 			})
 
 			It("fails with no org targeted error message", func() {
-				session := helpers.CF("v3-unset-env", appName, envVarName)
+				session := helpers.CF("unset-env", appName, envVarName)
 				Eventually(session).Should(Say("FAILED"))
 				Eventually(session.Err).Should(Say("No org targeted, use 'cf target -o ORG' to target an org\\."))
 				Eventually(session).Should(Exit(1))
@@ -156,7 +111,7 @@ var _ = Describe("v3-unset-env command", func() {
 			})
 
 			It("fails with no space targeted error message", func() {
-				session := helpers.CF("v3-unset-env", appName, envVarName)
+				session := helpers.CF("unset-env", appName, envVarName)
 				Eventually(session).Should(Say("FAILED"))
 				Eventually(session.Err).Should(Say("No space targeted, use 'cf target -s SPACE' to target a space\\."))
 				Eventually(session).Should(Exit(1))
@@ -175,7 +130,7 @@ var _ = Describe("v3-unset-env command", func() {
 		When("the app does not exist", func() {
 			It("displays app not found and exits 1", func() {
 				invalidAppName := "invalid-app-name"
-				session := helpers.CF("v3-unset-env", invalidAppName, envVarName)
+				session := helpers.CF("unset-env", invalidAppName, envVarName)
 
 				Eventually(session).Should(Say("Removing env variable %s from app %s in org %s / space %s as %s\\.\\.\\.", envVarName, invalidAppName, orgName, spaceName, userName))
 				Eventually(session.Err).Should(Say("App %s not found", invalidAppName))
@@ -193,7 +148,7 @@ var _ = Describe("v3-unset-env command", func() {
 
 			When("the environment variable has not been previously set", func() {
 				It("returns a warning indicating variable was not set", func() {
-					session := helpers.CF("v3-unset-env", appName, envVarName)
+					session := helpers.CF("unset-env", appName, envVarName)
 
 					Eventually(session).Should(Say("Removing env variable %s from app %s in org %s / space %s as %s\\.\\.\\.", envVarName, appName, orgName, spaceName, userName))
 					Eventually(session).Should(Say("Env variable %s was not set.", envVarName))
@@ -208,7 +163,7 @@ var _ = Describe("v3-unset-env command", func() {
 				})
 
 				It("overrides the value of the existing environment variable", func() {
-					session := helpers.CF("v3-unset-env", appName, envVarName)
+					session := helpers.CF("unset-env", appName, envVarName)
 
 					Eventually(session).Should(Say("Removing env variable %s from app %s in org %s / space %s as %s\\.\\.\\.", envVarName, appName, orgName, spaceName, userName))
 					Eventually(session).Should(Say("OK"))

@@ -32,7 +32,6 @@ type commandList struct {
 	V3Stage              v7.V3StageCommand              `command:"v3-stage" description:"Create a new droplet for an app"`
 	V3Start              v7.V3StartCommand              `command:"v3-start" description:"Start an app"`
 	V3Stop               v7.V3StopCommand               `command:"v3-stop" description:"Stop an app"`
-	V3UnsetEnv           v7.V3UnsetEnvCommand           `command:"v3-unset-env" description:"Remove an env variable from an app"`
 
 	AddPluginRepo                      plugin.AddPluginRepoCommand                  `command:"add-plugin-repo" description:"Add a new plugin repository"`
 	AddNetworkPolicy                   v7.AddNetworkPolicyCommand                   `command:"add-network-policy" description:"Create policy to allow direct network traffic from one app to another"`
@@ -188,7 +187,7 @@ type commandList struct {
 	UnbindStagingSecurityGroup         v2.UnbindStagingSecurityGroupCommand         `command:"unbind-staging-security-group" description:"Unbind a security group from the set of security groups for staging applications"`
 	UninstallPlugin                    plugin.UninstallPluginCommand                `command:"uninstall-plugin" description:"Uninstall CLI plugin"`
 	UnmapRoute                         v2.UnmapRouteCommand                         `command:"unmap-route" description:"Remove a url route from an app"`
-	UnsetEnv                           v2.UnsetEnvCommand                           `command:"unset-env" description:"Remove an env variable"`
+	UnsetEnv                           v7.UnsetEnvCommand                           `command:"unset-env" description:"Remove an env variable from an app"`
 	UnsetOrgRole                       v2.UnsetOrgRoleCommand                       `command:"unset-org-role" description:"Remove an org role from a user"`
 	UnsetSpaceQuota                    v2.UnsetSpaceQuotaCommand                    `command:"unset-space-quota" description:"Unassign a quota from a space"`
 	UnsetSpaceRole                     v2.UnsetSpaceRoleCommand                     `command:"unset-space-role" description:"Remove a space role from a user"`

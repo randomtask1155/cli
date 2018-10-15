@@ -5,10 +5,8 @@ import (
 
 	"code.cloudfoundry.org/cli/actor/actionerror"
 	"code.cloudfoundry.org/cli/actor/v7action"
-	"code.cloudfoundry.org/cli/api/cloudcontroller/ccversion"
 	"code.cloudfoundry.org/cli/command/commandfakes"
-	"code.cloudfoundry.org/cli/command/translatableerror"
-	"code.cloudfoundry.org/cli/command/v7"
+	. "code.cloudfoundry.org/cli/command/v7"
 	"code.cloudfoundry.org/cli/command/v7/v7fakes"
 	"code.cloudfoundry.org/cli/util/configv3"
 	"code.cloudfoundry.org/cli/util/ui"
@@ -17,13 +15,13 @@ import (
 	. "github.com/onsi/gomega/gbytes"
 )
 
-var _ = Describe("v3-unset-env Command", func() {
+var _ = Describe("unset-env Command", func() {
 	var (
-		cmd             v7.V3UnsetEnvCommand
+		cmd             UnsetEnvCommand
 		testUI          *ui.UI
 		fakeConfig      *commandfakes.FakeConfig
 		fakeSharedActor *commandfakes.FakeSharedActor
-		fakeActor       *v7fakes.FakeV3UnsetEnvActor
+		fakeActor       *v7fakes.FakeUnsetEnvActor
 		binaryName      string
 		executeErr      error
 		appName         string
@@ -33,9 +31,9 @@ var _ = Describe("v3-unset-env Command", func() {
 		testUI = ui.NewTestUI(nil, NewBuffer(), NewBuffer())
 		fakeConfig = new(commandfakes.FakeConfig)
 		fakeSharedActor = new(commandfakes.FakeSharedActor)
-		fakeActor = new(v7fakes.FakeV3UnsetEnvActor)
+		fakeActor = new(v7fakes.FakeUnsetEnvActor)
 
-		cmd = v7.V3UnsetEnvCommand{
+		cmd = UnsetEnvCommand{
 			UI:          testUI,
 			Config:      fakeConfig,
 			SharedActor: fakeSharedActor,
@@ -54,26 +52,8 @@ var _ = Describe("v3-unset-env Command", func() {
 		executeErr = cmd.Execute(nil)
 	})
 
-	When("the API version is below the minimum", func() {
-		BeforeEach(func() {
-			fakeActor.CloudControllerAPIVersionReturns(ccversion.MinV3ClientVersion)
-		})
-
-		It("returns a MinimumAPIVersionNotMetError", func() {
-			Expect(executeErr).To(MatchError(translatableerror.MinimumCFAPIVersionNotMetError{
-				CurrentVersion: ccversion.MinV3ClientVersion,
-				MinimumVersion: ccversion.MinVersionApplicationFlowV3,
-			}))
-		})
-
-		It("displays the experimental warning", func() {
-			Expect(testUI.Err).To(Say("This command is in EXPERIMENTAL stage and may change without notice"))
-		})
-	})
-
 	When("checking target fails", func() {
 		BeforeEach(func() {
-			fakeActor.CloudControllerAPIVersionReturns(ccversion.MinVersionApplicationFlowV3)
 			fakeSharedActor.CheckTargetReturns(actionerror.NotLoggedInError{BinaryName: binaryName})
 		})
 
@@ -89,7 +69,6 @@ var _ = Describe("v3-unset-env Command", func() {
 
 	When("the user is logged in, an org is targeted and a space is targeted", func() {
 		BeforeEach(func() {
-			fakeActor.CloudControllerAPIVersionReturns(ccversion.MinVersionApplicationFlowV3)
 			fakeConfig.TargetedSpaceReturns(configv3.Space{Name: "some-space", GUID: "some-space-guid"})
 			fakeConfig.TargetedOrganizationReturns(configv3.Organization{Name: "some-org"})
 		})

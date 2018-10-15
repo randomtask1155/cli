@@ -191,9 +191,9 @@ var _ = Describe("env command", func() {
 				Eventually(session).Should(Exit(0))
 
 				By("displaying help messages when they are not set")
-				Eventually(helpers.CF("v3-unset-env", appName, "user-provided-env-name")).Should(Exit(0))
-				Eventually(helpers.CF("v3-unset-env", appName, "an-out-of-order-name")).Should(Exit(0))
-				Eventually(helpers.CF("v3-unset-env", appName, "Capital-env-var")).Should(Exit(0))
+				Eventually(helpers.CF("unset-env", appName, "user-provided-env-name")).Should(Exit(0))
+				Eventually(helpers.CF("unset-env", appName, "an-out-of-order-name")).Should(Exit(0))
+				Eventually(helpers.CF("unset-env", appName, "Capital-env-var")).Should(Exit(0))
 				Eventually(helpers.CF("unbind-service", appName, userProvidedServiceName)).Should(Exit(0))
 				Eventually(helpers.CF("set-running-environment-variable-group", `{}`)).Should(Exit(0))
 				Eventually(helpers.CF("set-staging-environment-variable-group", `{}`)).Should(Exit(0))
