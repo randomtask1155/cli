@@ -24,7 +24,6 @@ type commandList struct {
 	V3CreateApp          v7.V3CreateAppCommand          `command:"v3-create-app" description:"Create a V3 App"`
 	V3CreatePackage      v7.V3CreatePackageCommand      `command:"v3-create-package" description:"Uploads a V3 Package"`
 	V3Droplets           v7.V3DropletsCommand           `command:"v3-droplets" description:"List droplets of an app"`
-	V3GetHealthCheck     v7.V3GetHealthCheckCommand     `command:"v3-get-health-check" description:"Show the type of health check performed on an app"`
 	V3Packages           v7.V3PackagesCommand           `command:"v3-packages" description:"List packages of an app"`
 	V3Push               v7.V3PushCommand               `command:"v3-push" description:"Push a new app or sync changes to an existing app"`
 	V3Restart            v7.V3RestartCommand            `command:"v3-restart" description:"Stop all instances of the app, then start them again. This causes downtime."`
@@ -100,7 +99,7 @@ type commandList struct {
 	FeatureFlags                       v2.FeatureFlagsCommand                       `command:"feature-flags" description:"Retrieve list of feature flags with status"`
 	FeatureFlag                        v2.FeatureFlagCommand                        `command:"feature-flag" description:"Retrieve an individual feature flag with status"`
 	Files                              v2.FilesCommand                              `command:"files" alias:"f" description:"Print out a list of files in a directory or the contents of a specific file of an app running on the DEA backend"`
-	GetHealthCheck                     v2.GetHealthCheckCommand                     `command:"get-health-check" description:"Show the type of health check performed on an app"`
+	GetHealthCheck                     v7.GetHealthCheckCommand                     `command:"get-health-check" description:"Show the type of health check performed on an app"`
 	Help                               HelpCommand                                  `command:"help" alias:"h" description:"Show help"`
 	InstallPlugin                      InstallPluginCommand                         `command:"install-plugin" description:"Install CLI plugin"`
 	IsolationSegments                  v7.IsolationSegmentsCommand                  `command:"isolation-segments" description:"List all isolation segments"`

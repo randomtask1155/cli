@@ -8,7 +8,7 @@ import (
 	"code.cloudfoundry.org/cli/command/v7"
 )
 
-type FakeV3GetHealthCheckActor struct {
+type FakeGetHealthCheckActor struct {
 	CloudControllerAPIVersionStub        func() string
 	cloudControllerAPIVersionMutex       sync.RWMutex
 	cloudControllerAPIVersionArgsForCall []struct{}
@@ -38,7 +38,7 @@ type FakeV3GetHealthCheckActor struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeV3GetHealthCheckActor) CloudControllerAPIVersion() string {
+func (fake *FakeGetHealthCheckActor) CloudControllerAPIVersion() string {
 	fake.cloudControllerAPIVersionMutex.Lock()
 	ret, specificReturn := fake.cloudControllerAPIVersionReturnsOnCall[len(fake.cloudControllerAPIVersionArgsForCall)]
 	fake.cloudControllerAPIVersionArgsForCall = append(fake.cloudControllerAPIVersionArgsForCall, struct{}{})
@@ -53,20 +53,20 @@ func (fake *FakeV3GetHealthCheckActor) CloudControllerAPIVersion() string {
 	return fake.cloudControllerAPIVersionReturns.result1
 }
 
-func (fake *FakeV3GetHealthCheckActor) CloudControllerAPIVersionCallCount() int {
+func (fake *FakeGetHealthCheckActor) CloudControllerAPIVersionCallCount() int {
 	fake.cloudControllerAPIVersionMutex.RLock()
 	defer fake.cloudControllerAPIVersionMutex.RUnlock()
 	return len(fake.cloudControllerAPIVersionArgsForCall)
 }
 
-func (fake *FakeV3GetHealthCheckActor) CloudControllerAPIVersionReturns(result1 string) {
+func (fake *FakeGetHealthCheckActor) CloudControllerAPIVersionReturns(result1 string) {
 	fake.CloudControllerAPIVersionStub = nil
 	fake.cloudControllerAPIVersionReturns = struct {
 		result1 string
 	}{result1}
 }
 
-func (fake *FakeV3GetHealthCheckActor) CloudControllerAPIVersionReturnsOnCall(i int, result1 string) {
+func (fake *FakeGetHealthCheckActor) CloudControllerAPIVersionReturnsOnCall(i int, result1 string) {
 	fake.CloudControllerAPIVersionStub = nil
 	if fake.cloudControllerAPIVersionReturnsOnCall == nil {
 		fake.cloudControllerAPIVersionReturnsOnCall = make(map[int]struct {
@@ -78,7 +78,7 @@ func (fake *FakeV3GetHealthCheckActor) CloudControllerAPIVersionReturnsOnCall(i 
 	}{result1}
 }
 
-func (fake *FakeV3GetHealthCheckActor) GetApplicationProcessHealthChecksByNameAndSpace(appName string, spaceGUID string) ([]v7action.ProcessHealthCheck, v7action.Warnings, error) {
+func (fake *FakeGetHealthCheckActor) GetApplicationProcessHealthChecksByNameAndSpace(appName string, spaceGUID string) ([]v7action.ProcessHealthCheck, v7action.Warnings, error) {
 	fake.getApplicationProcessHealthChecksByNameAndSpaceMutex.Lock()
 	ret, specificReturn := fake.getApplicationProcessHealthChecksByNameAndSpaceReturnsOnCall[len(fake.getApplicationProcessHealthChecksByNameAndSpaceArgsForCall)]
 	fake.getApplicationProcessHealthChecksByNameAndSpaceArgsForCall = append(fake.getApplicationProcessHealthChecksByNameAndSpaceArgsForCall, struct {
@@ -96,19 +96,19 @@ func (fake *FakeV3GetHealthCheckActor) GetApplicationProcessHealthChecksByNameAn
 	return fake.getApplicationProcessHealthChecksByNameAndSpaceReturns.result1, fake.getApplicationProcessHealthChecksByNameAndSpaceReturns.result2, fake.getApplicationProcessHealthChecksByNameAndSpaceReturns.result3
 }
 
-func (fake *FakeV3GetHealthCheckActor) GetApplicationProcessHealthChecksByNameAndSpaceCallCount() int {
+func (fake *FakeGetHealthCheckActor) GetApplicationProcessHealthChecksByNameAndSpaceCallCount() int {
 	fake.getApplicationProcessHealthChecksByNameAndSpaceMutex.RLock()
 	defer fake.getApplicationProcessHealthChecksByNameAndSpaceMutex.RUnlock()
 	return len(fake.getApplicationProcessHealthChecksByNameAndSpaceArgsForCall)
 }
 
-func (fake *FakeV3GetHealthCheckActor) GetApplicationProcessHealthChecksByNameAndSpaceArgsForCall(i int) (string, string) {
+func (fake *FakeGetHealthCheckActor) GetApplicationProcessHealthChecksByNameAndSpaceArgsForCall(i int) (string, string) {
 	fake.getApplicationProcessHealthChecksByNameAndSpaceMutex.RLock()
 	defer fake.getApplicationProcessHealthChecksByNameAndSpaceMutex.RUnlock()
 	return fake.getApplicationProcessHealthChecksByNameAndSpaceArgsForCall[i].appName, fake.getApplicationProcessHealthChecksByNameAndSpaceArgsForCall[i].spaceGUID
 }
 
-func (fake *FakeV3GetHealthCheckActor) GetApplicationProcessHealthChecksByNameAndSpaceReturns(result1 []v7action.ProcessHealthCheck, result2 v7action.Warnings, result3 error) {
+func (fake *FakeGetHealthCheckActor) GetApplicationProcessHealthChecksByNameAndSpaceReturns(result1 []v7action.ProcessHealthCheck, result2 v7action.Warnings, result3 error) {
 	fake.GetApplicationProcessHealthChecksByNameAndSpaceStub = nil
 	fake.getApplicationProcessHealthChecksByNameAndSpaceReturns = struct {
 		result1 []v7action.ProcessHealthCheck
@@ -117,7 +117,7 @@ func (fake *FakeV3GetHealthCheckActor) GetApplicationProcessHealthChecksByNameAn
 	}{result1, result2, result3}
 }
 
-func (fake *FakeV3GetHealthCheckActor) GetApplicationProcessHealthChecksByNameAndSpaceReturnsOnCall(i int, result1 []v7action.ProcessHealthCheck, result2 v7action.Warnings, result3 error) {
+func (fake *FakeGetHealthCheckActor) GetApplicationProcessHealthChecksByNameAndSpaceReturnsOnCall(i int, result1 []v7action.ProcessHealthCheck, result2 v7action.Warnings, result3 error) {
 	fake.GetApplicationProcessHealthChecksByNameAndSpaceStub = nil
 	if fake.getApplicationProcessHealthChecksByNameAndSpaceReturnsOnCall == nil {
 		fake.getApplicationProcessHealthChecksByNameAndSpaceReturnsOnCall = make(map[int]struct {
@@ -133,7 +133,7 @@ func (fake *FakeV3GetHealthCheckActor) GetApplicationProcessHealthChecksByNameAn
 	}{result1, result2, result3}
 }
 
-func (fake *FakeV3GetHealthCheckActor) Invocations() map[string][][]interface{} {
+func (fake *FakeGetHealthCheckActor) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
 	fake.cloudControllerAPIVersionMutex.RLock()
@@ -147,7 +147,7 @@ func (fake *FakeV3GetHealthCheckActor) Invocations() map[string][][]interface{} 
 	return copiedInvocations
 }
 
-func (fake *FakeV3GetHealthCheckActor) recordInvocation(key string, args []interface{}) {
+func (fake *FakeGetHealthCheckActor) recordInvocation(key string, args []interface{}) {
 	fake.invocationsMutex.Lock()
 	defer fake.invocationsMutex.Unlock()
 	if fake.invocations == nil {
@@ -159,4 +159,4 @@ func (fake *FakeV3GetHealthCheckActor) recordInvocation(key string, args []inter
 	fake.invocations[key] = append(fake.invocations[key], args)
 }
 
-var _ v7.V3GetHealthCheckActor = new(FakeV3GetHealthCheckActor)
+var _ v7.GetHealthCheckActor = new(FakeGetHealthCheckActor)

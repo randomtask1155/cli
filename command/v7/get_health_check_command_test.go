@@ -9,8 +9,7 @@ import (
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccversion"
 	"code.cloudfoundry.org/cli/command/commandfakes"
 	"code.cloudfoundry.org/cli/command/flag"
-	"code.cloudfoundry.org/cli/command/translatableerror"
-	"code.cloudfoundry.org/cli/command/v7"
+	. "code.cloudfoundry.org/cli/command/v7"
 	"code.cloudfoundry.org/cli/command/v7/v7fakes"
 	"code.cloudfoundry.org/cli/util/configv3"
 	"code.cloudfoundry.org/cli/util/ui"
@@ -19,13 +18,13 @@ import (
 	. "github.com/onsi/gomega/gbytes"
 )
 
-var _ = Describe("v3-get-health-check Command", func() {
+var _ = Describe("get-health-check Command", func() {
 	var (
-		cmd             v7.V3GetHealthCheckCommand
+		cmd             GetHealthCheckCommand
 		testUI          *ui.UI
 		fakeConfig      *commandfakes.FakeConfig
 		fakeSharedActor *commandfakes.FakeSharedActor
-		fakeActor       *v7fakes.FakeV3GetHealthCheckActor
+		fakeActor       *v7fakes.FakeGetHealthCheckActor
 		binaryName      string
 		executeErr      error
 		app             string
@@ -35,13 +34,13 @@ var _ = Describe("v3-get-health-check Command", func() {
 		testUI = ui.NewTestUI(nil, NewBuffer(), NewBuffer())
 		fakeConfig = new(commandfakes.FakeConfig)
 		fakeSharedActor = new(commandfakes.FakeSharedActor)
-		fakeActor = new(v7fakes.FakeV3GetHealthCheckActor)
+		fakeActor = new(v7fakes.FakeGetHealthCheckActor)
 
 		binaryName = "faceman"
 		fakeConfig.BinaryNameReturns(binaryName)
 		app = "some-app"
 
-		cmd = v7.V3GetHealthCheckCommand{
+		cmd = GetHealthCheckCommand{
 			RequiredArgs: flag.AppName{AppName: app},
 
 			UI:          testUI,
@@ -66,23 +65,6 @@ var _ = Describe("v3-get-health-check Command", func() {
 		executeErr = cmd.Execute(nil)
 	})
 
-	When("the API version is below the minimum", func() {
-		BeforeEach(func() {
-			fakeActor.CloudControllerAPIVersionReturns(ccversion.MinV3ClientVersion)
-		})
-
-		It("returns a MinimumAPIVersionNotMetError", func() {
-			Expect(executeErr).To(MatchError(translatableerror.MinimumCFAPIVersionNotMetError{
-				CurrentVersion: ccversion.MinV3ClientVersion,
-				MinimumVersion: ccversion.MinVersionApplicationFlowV3,
-			}))
-		})
-
-		It("displays the experimental warning", func() {
-			Expect(testUI.Err).To(Say("This command is in EXPERIMENTAL stage and may change without notice"))
-		})
-	})
-
 	When("checking target fails", func() {
 		BeforeEach(func() {
 			fakeActor.CloudControllerAPIVersionReturns(ccversion.MinVersionApplicationFlowV3)
@@ -91,8 +73,6 @@ var _ = Describe("v3-get-health-check Command", func() {
 
 		It("returns an error", func() {
 			Expect(executeErr).To(MatchError(actionerror.NoOrganizationTargetedError{BinaryName: binaryName}))
-
-			Expect(testUI.Err).To(Say("This command is in EXPERIMENTAL stage and may change without notice"))
 
 			Expect(fakeSharedActor.CheckTargetCallCount()).To(Equal(1))
 			checkTargetedOrg, checkTargetedSpace := fakeSharedActor.CheckTargetArgsForCall(0)
@@ -127,7 +107,6 @@ var _ = Describe("v3-get-health-check Command", func() {
 		It("returns the error and prints warnings", func() {
 			Expect(executeErr).To(Equal(actionerror.ApplicationNotFoundError{Name: app}))
 
-			Expect(testUI.Err).To(Say("This command is in EXPERIMENTAL stage and may change without notice"))
 			Expect(testUI.Out).To(Say("Getting process health check types for app some-app in org some-org / space some-space as steve\\.\\.\\."))
 
 			Expect(testUI.Err).To(Say("warning-1"))
@@ -147,7 +126,6 @@ var _ = Describe("v3-get-health-check Command", func() {
 		It("displays a message that there are no processes", func() {
 			Expect(executeErr).ToNot(HaveOccurred())
 
-			Expect(testUI.Err).To(Say("This command is in EXPERIMENTAL stage and may change without notice"))
 			Expect(testUI.Out).To(Say("Getting process health check types for app some-app in org some-org / space some-space as steve\\.\\.\\."))
 			Expect(testUI.Out).To(Say("App has no processes"))
 
@@ -172,7 +150,6 @@ var _ = Describe("v3-get-health-check Command", func() {
 		It("prints the health check type of each process and warnings", func() {
 			Expect(executeErr).ToNot(HaveOccurred())
 
-			Expect(testUI.Err).To(Say("This command is in EXPERIMENTAL stage and may change without notice"))
 			Expect(testUI.Out).To(Say("Getting process health check types for app some-app in org some-org / space some-space as steve\\.\\.\\."))
 			Expect(testUI.Out).To(Say(`process\s+health check\s+endpoint\s+\(for http\)\s+invocation timeout\n`))
 			Expect(testUI.Out).To(Say(`web\s+http\s+/foo\s+10\n`))
