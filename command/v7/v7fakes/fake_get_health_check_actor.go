@@ -2,27 +2,28 @@
 package v7fakes
 
 import (
-	"sync"
+	sync "sync"
 
-	"code.cloudfoundry.org/cli/actor/v7action"
-	"code.cloudfoundry.org/cli/command/v7"
+	v7action "code.cloudfoundry.org/cli/actor/v7action"
+	v7 "code.cloudfoundry.org/cli/command/v7"
 )
 
 type FakeGetHealthCheckActor struct {
 	CloudControllerAPIVersionStub        func() string
 	cloudControllerAPIVersionMutex       sync.RWMutex
-	cloudControllerAPIVersionArgsForCall []struct{}
-	cloudControllerAPIVersionReturns     struct {
+	cloudControllerAPIVersionArgsForCall []struct {
+	}
+	cloudControllerAPIVersionReturns struct {
 		result1 string
 	}
 	cloudControllerAPIVersionReturnsOnCall map[int]struct {
 		result1 string
 	}
-	GetApplicationProcessHealthChecksByNameAndSpaceStub        func(appName string, spaceGUID string) ([]v7action.ProcessHealthCheck, v7action.Warnings, error)
+	GetApplicationProcessHealthChecksByNameAndSpaceStub        func(string, string) ([]v7action.ProcessHealthCheck, v7action.Warnings, error)
 	getApplicationProcessHealthChecksByNameAndSpaceMutex       sync.RWMutex
 	getApplicationProcessHealthChecksByNameAndSpaceArgsForCall []struct {
-		appName   string
-		spaceGUID string
+		arg1 string
+		arg2 string
 	}
 	getApplicationProcessHealthChecksByNameAndSpaceReturns struct {
 		result1 []v7action.ProcessHealthCheck
@@ -41,7 +42,8 @@ type FakeGetHealthCheckActor struct {
 func (fake *FakeGetHealthCheckActor) CloudControllerAPIVersion() string {
 	fake.cloudControllerAPIVersionMutex.Lock()
 	ret, specificReturn := fake.cloudControllerAPIVersionReturnsOnCall[len(fake.cloudControllerAPIVersionArgsForCall)]
-	fake.cloudControllerAPIVersionArgsForCall = append(fake.cloudControllerAPIVersionArgsForCall, struct{}{})
+	fake.cloudControllerAPIVersionArgsForCall = append(fake.cloudControllerAPIVersionArgsForCall, struct {
+	}{})
 	fake.recordInvocation("CloudControllerAPIVersion", []interface{}{})
 	fake.cloudControllerAPIVersionMutex.Unlock()
 	if fake.CloudControllerAPIVersionStub != nil {
@@ -50,7 +52,8 @@ func (fake *FakeGetHealthCheckActor) CloudControllerAPIVersion() string {
 	if specificReturn {
 		return ret.result1
 	}
-	return fake.cloudControllerAPIVersionReturns.result1
+	fakeReturns := fake.cloudControllerAPIVersionReturns
+	return fakeReturns.result1
 }
 
 func (fake *FakeGetHealthCheckActor) CloudControllerAPIVersionCallCount() int {
@@ -59,7 +62,15 @@ func (fake *FakeGetHealthCheckActor) CloudControllerAPIVersionCallCount() int {
 	return len(fake.cloudControllerAPIVersionArgsForCall)
 }
 
+func (fake *FakeGetHealthCheckActor) CloudControllerAPIVersionCalls(stub func() string) {
+	fake.cloudControllerAPIVersionMutex.Lock()
+	defer fake.cloudControllerAPIVersionMutex.Unlock()
+	fake.CloudControllerAPIVersionStub = stub
+}
+
 func (fake *FakeGetHealthCheckActor) CloudControllerAPIVersionReturns(result1 string) {
+	fake.cloudControllerAPIVersionMutex.Lock()
+	defer fake.cloudControllerAPIVersionMutex.Unlock()
 	fake.CloudControllerAPIVersionStub = nil
 	fake.cloudControllerAPIVersionReturns = struct {
 		result1 string
@@ -67,6 +78,8 @@ func (fake *FakeGetHealthCheckActor) CloudControllerAPIVersionReturns(result1 st
 }
 
 func (fake *FakeGetHealthCheckActor) CloudControllerAPIVersionReturnsOnCall(i int, result1 string) {
+	fake.cloudControllerAPIVersionMutex.Lock()
+	defer fake.cloudControllerAPIVersionMutex.Unlock()
 	fake.CloudControllerAPIVersionStub = nil
 	if fake.cloudControllerAPIVersionReturnsOnCall == nil {
 		fake.cloudControllerAPIVersionReturnsOnCall = make(map[int]struct {
@@ -78,22 +91,23 @@ func (fake *FakeGetHealthCheckActor) CloudControllerAPIVersionReturnsOnCall(i in
 	}{result1}
 }
 
-func (fake *FakeGetHealthCheckActor) GetApplicationProcessHealthChecksByNameAndSpace(appName string, spaceGUID string) ([]v7action.ProcessHealthCheck, v7action.Warnings, error) {
+func (fake *FakeGetHealthCheckActor) GetApplicationProcessHealthChecksByNameAndSpace(arg1 string, arg2 string) ([]v7action.ProcessHealthCheck, v7action.Warnings, error) {
 	fake.getApplicationProcessHealthChecksByNameAndSpaceMutex.Lock()
 	ret, specificReturn := fake.getApplicationProcessHealthChecksByNameAndSpaceReturnsOnCall[len(fake.getApplicationProcessHealthChecksByNameAndSpaceArgsForCall)]
 	fake.getApplicationProcessHealthChecksByNameAndSpaceArgsForCall = append(fake.getApplicationProcessHealthChecksByNameAndSpaceArgsForCall, struct {
-		appName   string
-		spaceGUID string
-	}{appName, spaceGUID})
-	fake.recordInvocation("GetApplicationProcessHealthChecksByNameAndSpace", []interface{}{appName, spaceGUID})
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	fake.recordInvocation("GetApplicationProcessHealthChecksByNameAndSpace", []interface{}{arg1, arg2})
 	fake.getApplicationProcessHealthChecksByNameAndSpaceMutex.Unlock()
 	if fake.GetApplicationProcessHealthChecksByNameAndSpaceStub != nil {
-		return fake.GetApplicationProcessHealthChecksByNameAndSpaceStub(appName, spaceGUID)
+		return fake.GetApplicationProcessHealthChecksByNameAndSpaceStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2, ret.result3
 	}
-	return fake.getApplicationProcessHealthChecksByNameAndSpaceReturns.result1, fake.getApplicationProcessHealthChecksByNameAndSpaceReturns.result2, fake.getApplicationProcessHealthChecksByNameAndSpaceReturns.result3
+	fakeReturns := fake.getApplicationProcessHealthChecksByNameAndSpaceReturns
+	return fakeReturns.result1, fakeReturns.result2, fakeReturns.result3
 }
 
 func (fake *FakeGetHealthCheckActor) GetApplicationProcessHealthChecksByNameAndSpaceCallCount() int {
@@ -102,13 +116,22 @@ func (fake *FakeGetHealthCheckActor) GetApplicationProcessHealthChecksByNameAndS
 	return len(fake.getApplicationProcessHealthChecksByNameAndSpaceArgsForCall)
 }
 
+func (fake *FakeGetHealthCheckActor) GetApplicationProcessHealthChecksByNameAndSpaceCalls(stub func(string, string) ([]v7action.ProcessHealthCheck, v7action.Warnings, error)) {
+	fake.getApplicationProcessHealthChecksByNameAndSpaceMutex.Lock()
+	defer fake.getApplicationProcessHealthChecksByNameAndSpaceMutex.Unlock()
+	fake.GetApplicationProcessHealthChecksByNameAndSpaceStub = stub
+}
+
 func (fake *FakeGetHealthCheckActor) GetApplicationProcessHealthChecksByNameAndSpaceArgsForCall(i int) (string, string) {
 	fake.getApplicationProcessHealthChecksByNameAndSpaceMutex.RLock()
 	defer fake.getApplicationProcessHealthChecksByNameAndSpaceMutex.RUnlock()
-	return fake.getApplicationProcessHealthChecksByNameAndSpaceArgsForCall[i].appName, fake.getApplicationProcessHealthChecksByNameAndSpaceArgsForCall[i].spaceGUID
+	argsForCall := fake.getApplicationProcessHealthChecksByNameAndSpaceArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *FakeGetHealthCheckActor) GetApplicationProcessHealthChecksByNameAndSpaceReturns(result1 []v7action.ProcessHealthCheck, result2 v7action.Warnings, result3 error) {
+	fake.getApplicationProcessHealthChecksByNameAndSpaceMutex.Lock()
+	defer fake.getApplicationProcessHealthChecksByNameAndSpaceMutex.Unlock()
 	fake.GetApplicationProcessHealthChecksByNameAndSpaceStub = nil
 	fake.getApplicationProcessHealthChecksByNameAndSpaceReturns = struct {
 		result1 []v7action.ProcessHealthCheck
@@ -118,6 +141,8 @@ func (fake *FakeGetHealthCheckActor) GetApplicationProcessHealthChecksByNameAndS
 }
 
 func (fake *FakeGetHealthCheckActor) GetApplicationProcessHealthChecksByNameAndSpaceReturnsOnCall(i int, result1 []v7action.ProcessHealthCheck, result2 v7action.Warnings, result3 error) {
+	fake.getApplicationProcessHealthChecksByNameAndSpaceMutex.Lock()
+	defer fake.getApplicationProcessHealthChecksByNameAndSpaceMutex.Unlock()
 	fake.GetApplicationProcessHealthChecksByNameAndSpaceStub = nil
 	if fake.getApplicationProcessHealthChecksByNameAndSpaceReturnsOnCall == nil {
 		fake.getApplicationProcessHealthChecksByNameAndSpaceReturnsOnCall = make(map[int]struct {

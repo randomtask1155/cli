@@ -2,19 +2,19 @@
 package v7fakes
 
 import (
-	"sync"
+	sync "sync"
 
-	"code.cloudfoundry.org/cli/actor/v7action"
-	"code.cloudfoundry.org/cli/command/v7"
+	v7action "code.cloudfoundry.org/cli/actor/v7action"
+	v7 "code.cloudfoundry.org/cli/command/v7"
 )
 
 type FakeUnsetEnvActor struct {
-	UnsetEnvironmentVariableByApplicationNameAndSpaceStub        func(appName string, spaceGUID string, EnvironmentVariableName string) (v7action.Warnings, error)
+	UnsetEnvironmentVariableByApplicationNameAndSpaceStub        func(string, string, string) (v7action.Warnings, error)
 	unsetEnvironmentVariableByApplicationNameAndSpaceMutex       sync.RWMutex
 	unsetEnvironmentVariableByApplicationNameAndSpaceArgsForCall []struct {
-		appName                 string
-		spaceGUID               string
-		EnvironmentVariableName string
+		arg1 string
+		arg2 string
+		arg3 string
 	}
 	unsetEnvironmentVariableByApplicationNameAndSpaceReturns struct {
 		result1 v7action.Warnings
@@ -28,23 +28,24 @@ type FakeUnsetEnvActor struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeUnsetEnvActor) UnsetEnvironmentVariableByApplicationNameAndSpace(appName string, spaceGUID string, EnvironmentVariableName string) (v7action.Warnings, error) {
+func (fake *FakeUnsetEnvActor) UnsetEnvironmentVariableByApplicationNameAndSpace(arg1 string, arg2 string, arg3 string) (v7action.Warnings, error) {
 	fake.unsetEnvironmentVariableByApplicationNameAndSpaceMutex.Lock()
 	ret, specificReturn := fake.unsetEnvironmentVariableByApplicationNameAndSpaceReturnsOnCall[len(fake.unsetEnvironmentVariableByApplicationNameAndSpaceArgsForCall)]
 	fake.unsetEnvironmentVariableByApplicationNameAndSpaceArgsForCall = append(fake.unsetEnvironmentVariableByApplicationNameAndSpaceArgsForCall, struct {
-		appName                 string
-		spaceGUID               string
-		EnvironmentVariableName string
-	}{appName, spaceGUID, EnvironmentVariableName})
-	fake.recordInvocation("UnsetEnvironmentVariableByApplicationNameAndSpace", []interface{}{appName, spaceGUID, EnvironmentVariableName})
+		arg1 string
+		arg2 string
+		arg3 string
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("UnsetEnvironmentVariableByApplicationNameAndSpace", []interface{}{arg1, arg2, arg3})
 	fake.unsetEnvironmentVariableByApplicationNameAndSpaceMutex.Unlock()
 	if fake.UnsetEnvironmentVariableByApplicationNameAndSpaceStub != nil {
-		return fake.UnsetEnvironmentVariableByApplicationNameAndSpaceStub(appName, spaceGUID, EnvironmentVariableName)
+		return fake.UnsetEnvironmentVariableByApplicationNameAndSpaceStub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.unsetEnvironmentVariableByApplicationNameAndSpaceReturns.result1, fake.unsetEnvironmentVariableByApplicationNameAndSpaceReturns.result2
+	fakeReturns := fake.unsetEnvironmentVariableByApplicationNameAndSpaceReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeUnsetEnvActor) UnsetEnvironmentVariableByApplicationNameAndSpaceCallCount() int {
@@ -53,13 +54,22 @@ func (fake *FakeUnsetEnvActor) UnsetEnvironmentVariableByApplicationNameAndSpace
 	return len(fake.unsetEnvironmentVariableByApplicationNameAndSpaceArgsForCall)
 }
 
+func (fake *FakeUnsetEnvActor) UnsetEnvironmentVariableByApplicationNameAndSpaceCalls(stub func(string, string, string) (v7action.Warnings, error)) {
+	fake.unsetEnvironmentVariableByApplicationNameAndSpaceMutex.Lock()
+	defer fake.unsetEnvironmentVariableByApplicationNameAndSpaceMutex.Unlock()
+	fake.UnsetEnvironmentVariableByApplicationNameAndSpaceStub = stub
+}
+
 func (fake *FakeUnsetEnvActor) UnsetEnvironmentVariableByApplicationNameAndSpaceArgsForCall(i int) (string, string, string) {
 	fake.unsetEnvironmentVariableByApplicationNameAndSpaceMutex.RLock()
 	defer fake.unsetEnvironmentVariableByApplicationNameAndSpaceMutex.RUnlock()
-	return fake.unsetEnvironmentVariableByApplicationNameAndSpaceArgsForCall[i].appName, fake.unsetEnvironmentVariableByApplicationNameAndSpaceArgsForCall[i].spaceGUID, fake.unsetEnvironmentVariableByApplicationNameAndSpaceArgsForCall[i].EnvironmentVariableName
+	argsForCall := fake.unsetEnvironmentVariableByApplicationNameAndSpaceArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *FakeUnsetEnvActor) UnsetEnvironmentVariableByApplicationNameAndSpaceReturns(result1 v7action.Warnings, result2 error) {
+	fake.unsetEnvironmentVariableByApplicationNameAndSpaceMutex.Lock()
+	defer fake.unsetEnvironmentVariableByApplicationNameAndSpaceMutex.Unlock()
 	fake.UnsetEnvironmentVariableByApplicationNameAndSpaceStub = nil
 	fake.unsetEnvironmentVariableByApplicationNameAndSpaceReturns = struct {
 		result1 v7action.Warnings
@@ -68,6 +78,8 @@ func (fake *FakeUnsetEnvActor) UnsetEnvironmentVariableByApplicationNameAndSpace
 }
 
 func (fake *FakeUnsetEnvActor) UnsetEnvironmentVariableByApplicationNameAndSpaceReturnsOnCall(i int, result1 v7action.Warnings, result2 error) {
+	fake.unsetEnvironmentVariableByApplicationNameAndSpaceMutex.Lock()
+	defer fake.unsetEnvironmentVariableByApplicationNameAndSpaceMutex.Unlock()
 	fake.UnsetEnvironmentVariableByApplicationNameAndSpaceStub = nil
 	if fake.unsetEnvironmentVariableByApplicationNameAndSpaceReturnsOnCall == nil {
 		fake.unsetEnvironmentVariableByApplicationNameAndSpaceReturnsOnCall = make(map[int]struct {

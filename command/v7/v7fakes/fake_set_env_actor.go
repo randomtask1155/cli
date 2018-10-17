@@ -2,28 +2,29 @@
 package v7fakes
 
 import (
-	"sync"
+	sync "sync"
 
-	"code.cloudfoundry.org/cli/actor/v7action"
-	"code.cloudfoundry.org/cli/command/v7"
+	v7action "code.cloudfoundry.org/cli/actor/v7action"
+	v7 "code.cloudfoundry.org/cli/command/v7"
 )
 
 type FakeSetEnvActor struct {
 	CloudControllerAPIVersionStub        func() string
 	cloudControllerAPIVersionMutex       sync.RWMutex
-	cloudControllerAPIVersionArgsForCall []struct{}
-	cloudControllerAPIVersionReturns     struct {
+	cloudControllerAPIVersionArgsForCall []struct {
+	}
+	cloudControllerAPIVersionReturns struct {
 		result1 string
 	}
 	cloudControllerAPIVersionReturnsOnCall map[int]struct {
 		result1 string
 	}
-	SetEnvironmentVariableByApplicationNameAndSpaceStub        func(appName string, spaceGUID string, envPair v7action.EnvironmentVariablePair) (v7action.Warnings, error)
+	SetEnvironmentVariableByApplicationNameAndSpaceStub        func(string, string, v7action.EnvironmentVariablePair) (v7action.Warnings, error)
 	setEnvironmentVariableByApplicationNameAndSpaceMutex       sync.RWMutex
 	setEnvironmentVariableByApplicationNameAndSpaceArgsForCall []struct {
-		appName   string
-		spaceGUID string
-		envPair   v7action.EnvironmentVariablePair
+		arg1 string
+		arg2 string
+		arg3 v7action.EnvironmentVariablePair
 	}
 	setEnvironmentVariableByApplicationNameAndSpaceReturns struct {
 		result1 v7action.Warnings
@@ -40,7 +41,8 @@ type FakeSetEnvActor struct {
 func (fake *FakeSetEnvActor) CloudControllerAPIVersion() string {
 	fake.cloudControllerAPIVersionMutex.Lock()
 	ret, specificReturn := fake.cloudControllerAPIVersionReturnsOnCall[len(fake.cloudControllerAPIVersionArgsForCall)]
-	fake.cloudControllerAPIVersionArgsForCall = append(fake.cloudControllerAPIVersionArgsForCall, struct{}{})
+	fake.cloudControllerAPIVersionArgsForCall = append(fake.cloudControllerAPIVersionArgsForCall, struct {
+	}{})
 	fake.recordInvocation("CloudControllerAPIVersion", []interface{}{})
 	fake.cloudControllerAPIVersionMutex.Unlock()
 	if fake.CloudControllerAPIVersionStub != nil {
@@ -49,7 +51,8 @@ func (fake *FakeSetEnvActor) CloudControllerAPIVersion() string {
 	if specificReturn {
 		return ret.result1
 	}
-	return fake.cloudControllerAPIVersionReturns.result1
+	fakeReturns := fake.cloudControllerAPIVersionReturns
+	return fakeReturns.result1
 }
 
 func (fake *FakeSetEnvActor) CloudControllerAPIVersionCallCount() int {
@@ -58,7 +61,15 @@ func (fake *FakeSetEnvActor) CloudControllerAPIVersionCallCount() int {
 	return len(fake.cloudControllerAPIVersionArgsForCall)
 }
 
+func (fake *FakeSetEnvActor) CloudControllerAPIVersionCalls(stub func() string) {
+	fake.cloudControllerAPIVersionMutex.Lock()
+	defer fake.cloudControllerAPIVersionMutex.Unlock()
+	fake.CloudControllerAPIVersionStub = stub
+}
+
 func (fake *FakeSetEnvActor) CloudControllerAPIVersionReturns(result1 string) {
+	fake.cloudControllerAPIVersionMutex.Lock()
+	defer fake.cloudControllerAPIVersionMutex.Unlock()
 	fake.CloudControllerAPIVersionStub = nil
 	fake.cloudControllerAPIVersionReturns = struct {
 		result1 string
@@ -66,6 +77,8 @@ func (fake *FakeSetEnvActor) CloudControllerAPIVersionReturns(result1 string) {
 }
 
 func (fake *FakeSetEnvActor) CloudControllerAPIVersionReturnsOnCall(i int, result1 string) {
+	fake.cloudControllerAPIVersionMutex.Lock()
+	defer fake.cloudControllerAPIVersionMutex.Unlock()
 	fake.CloudControllerAPIVersionStub = nil
 	if fake.cloudControllerAPIVersionReturnsOnCall == nil {
 		fake.cloudControllerAPIVersionReturnsOnCall = make(map[int]struct {
@@ -77,23 +90,24 @@ func (fake *FakeSetEnvActor) CloudControllerAPIVersionReturnsOnCall(i int, resul
 	}{result1}
 }
 
-func (fake *FakeSetEnvActor) SetEnvironmentVariableByApplicationNameAndSpace(appName string, spaceGUID string, envPair v7action.EnvironmentVariablePair) (v7action.Warnings, error) {
+func (fake *FakeSetEnvActor) SetEnvironmentVariableByApplicationNameAndSpace(arg1 string, arg2 string, arg3 v7action.EnvironmentVariablePair) (v7action.Warnings, error) {
 	fake.setEnvironmentVariableByApplicationNameAndSpaceMutex.Lock()
 	ret, specificReturn := fake.setEnvironmentVariableByApplicationNameAndSpaceReturnsOnCall[len(fake.setEnvironmentVariableByApplicationNameAndSpaceArgsForCall)]
 	fake.setEnvironmentVariableByApplicationNameAndSpaceArgsForCall = append(fake.setEnvironmentVariableByApplicationNameAndSpaceArgsForCall, struct {
-		appName   string
-		spaceGUID string
-		envPair   v7action.EnvironmentVariablePair
-	}{appName, spaceGUID, envPair})
-	fake.recordInvocation("SetEnvironmentVariableByApplicationNameAndSpace", []interface{}{appName, spaceGUID, envPair})
+		arg1 string
+		arg2 string
+		arg3 v7action.EnvironmentVariablePair
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("SetEnvironmentVariableByApplicationNameAndSpace", []interface{}{arg1, arg2, arg3})
 	fake.setEnvironmentVariableByApplicationNameAndSpaceMutex.Unlock()
 	if fake.SetEnvironmentVariableByApplicationNameAndSpaceStub != nil {
-		return fake.SetEnvironmentVariableByApplicationNameAndSpaceStub(appName, spaceGUID, envPair)
+		return fake.SetEnvironmentVariableByApplicationNameAndSpaceStub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.setEnvironmentVariableByApplicationNameAndSpaceReturns.result1, fake.setEnvironmentVariableByApplicationNameAndSpaceReturns.result2
+	fakeReturns := fake.setEnvironmentVariableByApplicationNameAndSpaceReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeSetEnvActor) SetEnvironmentVariableByApplicationNameAndSpaceCallCount() int {
@@ -102,13 +116,22 @@ func (fake *FakeSetEnvActor) SetEnvironmentVariableByApplicationNameAndSpaceCall
 	return len(fake.setEnvironmentVariableByApplicationNameAndSpaceArgsForCall)
 }
 
+func (fake *FakeSetEnvActor) SetEnvironmentVariableByApplicationNameAndSpaceCalls(stub func(string, string, v7action.EnvironmentVariablePair) (v7action.Warnings, error)) {
+	fake.setEnvironmentVariableByApplicationNameAndSpaceMutex.Lock()
+	defer fake.setEnvironmentVariableByApplicationNameAndSpaceMutex.Unlock()
+	fake.SetEnvironmentVariableByApplicationNameAndSpaceStub = stub
+}
+
 func (fake *FakeSetEnvActor) SetEnvironmentVariableByApplicationNameAndSpaceArgsForCall(i int) (string, string, v7action.EnvironmentVariablePair) {
 	fake.setEnvironmentVariableByApplicationNameAndSpaceMutex.RLock()
 	defer fake.setEnvironmentVariableByApplicationNameAndSpaceMutex.RUnlock()
-	return fake.setEnvironmentVariableByApplicationNameAndSpaceArgsForCall[i].appName, fake.setEnvironmentVariableByApplicationNameAndSpaceArgsForCall[i].spaceGUID, fake.setEnvironmentVariableByApplicationNameAndSpaceArgsForCall[i].envPair
+	argsForCall := fake.setEnvironmentVariableByApplicationNameAndSpaceArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *FakeSetEnvActor) SetEnvironmentVariableByApplicationNameAndSpaceReturns(result1 v7action.Warnings, result2 error) {
+	fake.setEnvironmentVariableByApplicationNameAndSpaceMutex.Lock()
+	defer fake.setEnvironmentVariableByApplicationNameAndSpaceMutex.Unlock()
 	fake.SetEnvironmentVariableByApplicationNameAndSpaceStub = nil
 	fake.setEnvironmentVariableByApplicationNameAndSpaceReturns = struct {
 		result1 v7action.Warnings
@@ -117,6 +140,8 @@ func (fake *FakeSetEnvActor) SetEnvironmentVariableByApplicationNameAndSpaceRetu
 }
 
 func (fake *FakeSetEnvActor) SetEnvironmentVariableByApplicationNameAndSpaceReturnsOnCall(i int, result1 v7action.Warnings, result2 error) {
+	fake.setEnvironmentVariableByApplicationNameAndSpaceMutex.Lock()
+	defer fake.setEnvironmentVariableByApplicationNameAndSpaceMutex.Unlock()
 	fake.SetEnvironmentVariableByApplicationNameAndSpaceStub = nil
 	if fake.setEnvironmentVariableByApplicationNameAndSpaceReturnsOnCall == nil {
 		fake.setEnvironmentVariableByApplicationNameAndSpaceReturnsOnCall = make(map[int]struct {

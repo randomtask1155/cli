@@ -2,20 +2,20 @@
 package v7fakes
 
 import (
-	"sync"
+	sync "sync"
 
-	"code.cloudfoundry.org/cli/actor/v7action"
-	"code.cloudfoundry.org/cli/command/v7"
+	v7action "code.cloudfoundry.org/cli/actor/v7action"
+	v7 "code.cloudfoundry.org/cli/command/v7"
 )
 
 type FakeSSHActor struct {
-	GetSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexStub        func(appName string, spaceGUID string, processType string, processIndex uint) (v7action.SSHAuthentication, v7action.Warnings, error)
+	GetSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexStub        func(string, string, string, uint) (v7action.SSHAuthentication, v7action.Warnings, error)
 	getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexMutex       sync.RWMutex
 	getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexArgsForCall []struct {
-		appName      string
-		spaceGUID    string
-		processType  string
-		processIndex uint
+		arg1 string
+		arg2 string
+		arg3 string
+		arg4 uint
 	}
 	getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexReturns struct {
 		result1 v7action.SSHAuthentication
@@ -31,24 +31,25 @@ type FakeSSHActor struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeSSHActor) GetSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndex(appName string, spaceGUID string, processType string, processIndex uint) (v7action.SSHAuthentication, v7action.Warnings, error) {
+func (fake *FakeSSHActor) GetSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndex(arg1 string, arg2 string, arg3 string, arg4 uint) (v7action.SSHAuthentication, v7action.Warnings, error) {
 	fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexMutex.Lock()
 	ret, specificReturn := fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexReturnsOnCall[len(fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexArgsForCall)]
 	fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexArgsForCall = append(fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexArgsForCall, struct {
-		appName      string
-		spaceGUID    string
-		processType  string
-		processIndex uint
-	}{appName, spaceGUID, processType, processIndex})
-	fake.recordInvocation("GetSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndex", []interface{}{appName, spaceGUID, processType, processIndex})
+		arg1 string
+		arg2 string
+		arg3 string
+		arg4 uint
+	}{arg1, arg2, arg3, arg4})
+	fake.recordInvocation("GetSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndex", []interface{}{arg1, arg2, arg3, arg4})
 	fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexMutex.Unlock()
 	if fake.GetSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexStub != nil {
-		return fake.GetSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexStub(appName, spaceGUID, processType, processIndex)
+		return fake.GetSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexStub(arg1, arg2, arg3, arg4)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2, ret.result3
 	}
-	return fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexReturns.result1, fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexReturns.result2, fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexReturns.result3
+	fakeReturns := fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexReturns
+	return fakeReturns.result1, fakeReturns.result2, fakeReturns.result3
 }
 
 func (fake *FakeSSHActor) GetSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexCallCount() int {
@@ -57,13 +58,22 @@ func (fake *FakeSSHActor) GetSecureShellConfigurationByApplicationNameSpaceProce
 	return len(fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexArgsForCall)
 }
 
+func (fake *FakeSSHActor) GetSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexCalls(stub func(string, string, string, uint) (v7action.SSHAuthentication, v7action.Warnings, error)) {
+	fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexMutex.Lock()
+	defer fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexMutex.Unlock()
+	fake.GetSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexStub = stub
+}
+
 func (fake *FakeSSHActor) GetSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexArgsForCall(i int) (string, string, string, uint) {
 	fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexMutex.RLock()
 	defer fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexMutex.RUnlock()
-	return fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexArgsForCall[i].appName, fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexArgsForCall[i].spaceGUID, fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexArgsForCall[i].processType, fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexArgsForCall[i].processIndex
+	argsForCall := fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
 }
 
 func (fake *FakeSSHActor) GetSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexReturns(result1 v7action.SSHAuthentication, result2 v7action.Warnings, result3 error) {
+	fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexMutex.Lock()
+	defer fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexMutex.Unlock()
 	fake.GetSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexStub = nil
 	fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexReturns = struct {
 		result1 v7action.SSHAuthentication
@@ -73,6 +83,8 @@ func (fake *FakeSSHActor) GetSecureShellConfigurationByApplicationNameSpaceProce
 }
 
 func (fake *FakeSSHActor) GetSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexReturnsOnCall(i int, result1 v7action.SSHAuthentication, result2 v7action.Warnings, result3 error) {
+	fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexMutex.Lock()
+	defer fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexMutex.Unlock()
 	fake.GetSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexStub = nil
 	if fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexReturnsOnCall == nil {
 		fake.getSecureShellConfigurationByApplicationNameSpaceProcessTypeAndIndexReturnsOnCall = make(map[int]struct {

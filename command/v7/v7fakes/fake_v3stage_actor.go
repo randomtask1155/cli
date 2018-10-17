@@ -2,28 +2,29 @@
 package v7fakes
 
 import (
-	"sync"
+	sync "sync"
 
-	"code.cloudfoundry.org/cli/actor/v7action"
-	"code.cloudfoundry.org/cli/command/v7"
+	v7action "code.cloudfoundry.org/cli/actor/v7action"
+	v7 "code.cloudfoundry.org/cli/command/v7"
 )
 
 type FakeV3StageActor struct {
 	CloudControllerAPIVersionStub        func() string
 	cloudControllerAPIVersionMutex       sync.RWMutex
-	cloudControllerAPIVersionArgsForCall []struct{}
-	cloudControllerAPIVersionReturns     struct {
+	cloudControllerAPIVersionArgsForCall []struct {
+	}
+	cloudControllerAPIVersionReturns struct {
 		result1 string
 	}
 	cloudControllerAPIVersionReturnsOnCall map[int]struct {
 		result1 string
 	}
-	GetStreamingLogsForApplicationByNameAndSpaceStub        func(appName string, spaceGUID string, client v7action.NOAAClient) (<-chan *v7action.LogMessage, <-chan error, v7action.Warnings, error)
+	GetStreamingLogsForApplicationByNameAndSpaceStub        func(string, string, v7action.NOAAClient) (<-chan *v7action.LogMessage, <-chan error, v7action.Warnings, error)
 	getStreamingLogsForApplicationByNameAndSpaceMutex       sync.RWMutex
 	getStreamingLogsForApplicationByNameAndSpaceArgsForCall []struct {
-		appName   string
-		spaceGUID string
-		client    v7action.NOAAClient
+		arg1 string
+		arg2 string
+		arg3 v7action.NOAAClient
 	}
 	getStreamingLogsForApplicationByNameAndSpaceReturns struct {
 		result1 <-chan *v7action.LogMessage
@@ -37,11 +38,11 @@ type FakeV3StageActor struct {
 		result3 v7action.Warnings
 		result4 error
 	}
-	StagePackageStub        func(packageGUID string, appName string) (<-chan v7action.Droplet, <-chan v7action.Warnings, <-chan error)
+	StagePackageStub        func(string, string) (<-chan v7action.Droplet, <-chan v7action.Warnings, <-chan error)
 	stagePackageMutex       sync.RWMutex
 	stagePackageArgsForCall []struct {
-		packageGUID string
-		appName     string
+		arg1 string
+		arg2 string
 	}
 	stagePackageReturns struct {
 		result1 <-chan v7action.Droplet
@@ -60,7 +61,8 @@ type FakeV3StageActor struct {
 func (fake *FakeV3StageActor) CloudControllerAPIVersion() string {
 	fake.cloudControllerAPIVersionMutex.Lock()
 	ret, specificReturn := fake.cloudControllerAPIVersionReturnsOnCall[len(fake.cloudControllerAPIVersionArgsForCall)]
-	fake.cloudControllerAPIVersionArgsForCall = append(fake.cloudControllerAPIVersionArgsForCall, struct{}{})
+	fake.cloudControllerAPIVersionArgsForCall = append(fake.cloudControllerAPIVersionArgsForCall, struct {
+	}{})
 	fake.recordInvocation("CloudControllerAPIVersion", []interface{}{})
 	fake.cloudControllerAPIVersionMutex.Unlock()
 	if fake.CloudControllerAPIVersionStub != nil {
@@ -69,7 +71,8 @@ func (fake *FakeV3StageActor) CloudControllerAPIVersion() string {
 	if specificReturn {
 		return ret.result1
 	}
-	return fake.cloudControllerAPIVersionReturns.result1
+	fakeReturns := fake.cloudControllerAPIVersionReturns
+	return fakeReturns.result1
 }
 
 func (fake *FakeV3StageActor) CloudControllerAPIVersionCallCount() int {
@@ -78,7 +81,15 @@ func (fake *FakeV3StageActor) CloudControllerAPIVersionCallCount() int {
 	return len(fake.cloudControllerAPIVersionArgsForCall)
 }
 
+func (fake *FakeV3StageActor) CloudControllerAPIVersionCalls(stub func() string) {
+	fake.cloudControllerAPIVersionMutex.Lock()
+	defer fake.cloudControllerAPIVersionMutex.Unlock()
+	fake.CloudControllerAPIVersionStub = stub
+}
+
 func (fake *FakeV3StageActor) CloudControllerAPIVersionReturns(result1 string) {
+	fake.cloudControllerAPIVersionMutex.Lock()
+	defer fake.cloudControllerAPIVersionMutex.Unlock()
 	fake.CloudControllerAPIVersionStub = nil
 	fake.cloudControllerAPIVersionReturns = struct {
 		result1 string
@@ -86,6 +97,8 @@ func (fake *FakeV3StageActor) CloudControllerAPIVersionReturns(result1 string) {
 }
 
 func (fake *FakeV3StageActor) CloudControllerAPIVersionReturnsOnCall(i int, result1 string) {
+	fake.cloudControllerAPIVersionMutex.Lock()
+	defer fake.cloudControllerAPIVersionMutex.Unlock()
 	fake.CloudControllerAPIVersionStub = nil
 	if fake.cloudControllerAPIVersionReturnsOnCall == nil {
 		fake.cloudControllerAPIVersionReturnsOnCall = make(map[int]struct {
@@ -97,23 +110,24 @@ func (fake *FakeV3StageActor) CloudControllerAPIVersionReturnsOnCall(i int, resu
 	}{result1}
 }
 
-func (fake *FakeV3StageActor) GetStreamingLogsForApplicationByNameAndSpace(appName string, spaceGUID string, client v7action.NOAAClient) (<-chan *v7action.LogMessage, <-chan error, v7action.Warnings, error) {
+func (fake *FakeV3StageActor) GetStreamingLogsForApplicationByNameAndSpace(arg1 string, arg2 string, arg3 v7action.NOAAClient) (<-chan *v7action.LogMessage, <-chan error, v7action.Warnings, error) {
 	fake.getStreamingLogsForApplicationByNameAndSpaceMutex.Lock()
 	ret, specificReturn := fake.getStreamingLogsForApplicationByNameAndSpaceReturnsOnCall[len(fake.getStreamingLogsForApplicationByNameAndSpaceArgsForCall)]
 	fake.getStreamingLogsForApplicationByNameAndSpaceArgsForCall = append(fake.getStreamingLogsForApplicationByNameAndSpaceArgsForCall, struct {
-		appName   string
-		spaceGUID string
-		client    v7action.NOAAClient
-	}{appName, spaceGUID, client})
-	fake.recordInvocation("GetStreamingLogsForApplicationByNameAndSpace", []interface{}{appName, spaceGUID, client})
+		arg1 string
+		arg2 string
+		arg3 v7action.NOAAClient
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("GetStreamingLogsForApplicationByNameAndSpace", []interface{}{arg1, arg2, arg3})
 	fake.getStreamingLogsForApplicationByNameAndSpaceMutex.Unlock()
 	if fake.GetStreamingLogsForApplicationByNameAndSpaceStub != nil {
-		return fake.GetStreamingLogsForApplicationByNameAndSpaceStub(appName, spaceGUID, client)
+		return fake.GetStreamingLogsForApplicationByNameAndSpaceStub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2, ret.result3, ret.result4
 	}
-	return fake.getStreamingLogsForApplicationByNameAndSpaceReturns.result1, fake.getStreamingLogsForApplicationByNameAndSpaceReturns.result2, fake.getStreamingLogsForApplicationByNameAndSpaceReturns.result3, fake.getStreamingLogsForApplicationByNameAndSpaceReturns.result4
+	fakeReturns := fake.getStreamingLogsForApplicationByNameAndSpaceReturns
+	return fakeReturns.result1, fakeReturns.result2, fakeReturns.result3, fakeReturns.result4
 }
 
 func (fake *FakeV3StageActor) GetStreamingLogsForApplicationByNameAndSpaceCallCount() int {
@@ -122,13 +136,22 @@ func (fake *FakeV3StageActor) GetStreamingLogsForApplicationByNameAndSpaceCallCo
 	return len(fake.getStreamingLogsForApplicationByNameAndSpaceArgsForCall)
 }
 
+func (fake *FakeV3StageActor) GetStreamingLogsForApplicationByNameAndSpaceCalls(stub func(string, string, v7action.NOAAClient) (<-chan *v7action.LogMessage, <-chan error, v7action.Warnings, error)) {
+	fake.getStreamingLogsForApplicationByNameAndSpaceMutex.Lock()
+	defer fake.getStreamingLogsForApplicationByNameAndSpaceMutex.Unlock()
+	fake.GetStreamingLogsForApplicationByNameAndSpaceStub = stub
+}
+
 func (fake *FakeV3StageActor) GetStreamingLogsForApplicationByNameAndSpaceArgsForCall(i int) (string, string, v7action.NOAAClient) {
 	fake.getStreamingLogsForApplicationByNameAndSpaceMutex.RLock()
 	defer fake.getStreamingLogsForApplicationByNameAndSpaceMutex.RUnlock()
-	return fake.getStreamingLogsForApplicationByNameAndSpaceArgsForCall[i].appName, fake.getStreamingLogsForApplicationByNameAndSpaceArgsForCall[i].spaceGUID, fake.getStreamingLogsForApplicationByNameAndSpaceArgsForCall[i].client
+	argsForCall := fake.getStreamingLogsForApplicationByNameAndSpaceArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *FakeV3StageActor) GetStreamingLogsForApplicationByNameAndSpaceReturns(result1 <-chan *v7action.LogMessage, result2 <-chan error, result3 v7action.Warnings, result4 error) {
+	fake.getStreamingLogsForApplicationByNameAndSpaceMutex.Lock()
+	defer fake.getStreamingLogsForApplicationByNameAndSpaceMutex.Unlock()
 	fake.GetStreamingLogsForApplicationByNameAndSpaceStub = nil
 	fake.getStreamingLogsForApplicationByNameAndSpaceReturns = struct {
 		result1 <-chan *v7action.LogMessage
@@ -139,6 +162,8 @@ func (fake *FakeV3StageActor) GetStreamingLogsForApplicationByNameAndSpaceReturn
 }
 
 func (fake *FakeV3StageActor) GetStreamingLogsForApplicationByNameAndSpaceReturnsOnCall(i int, result1 <-chan *v7action.LogMessage, result2 <-chan error, result3 v7action.Warnings, result4 error) {
+	fake.getStreamingLogsForApplicationByNameAndSpaceMutex.Lock()
+	defer fake.getStreamingLogsForApplicationByNameAndSpaceMutex.Unlock()
 	fake.GetStreamingLogsForApplicationByNameAndSpaceStub = nil
 	if fake.getStreamingLogsForApplicationByNameAndSpaceReturnsOnCall == nil {
 		fake.getStreamingLogsForApplicationByNameAndSpaceReturnsOnCall = make(map[int]struct {
@@ -156,22 +181,23 @@ func (fake *FakeV3StageActor) GetStreamingLogsForApplicationByNameAndSpaceReturn
 	}{result1, result2, result3, result4}
 }
 
-func (fake *FakeV3StageActor) StagePackage(packageGUID string, appName string) (<-chan v7action.Droplet, <-chan v7action.Warnings, <-chan error) {
+func (fake *FakeV3StageActor) StagePackage(arg1 string, arg2 string) (<-chan v7action.Droplet, <-chan v7action.Warnings, <-chan error) {
 	fake.stagePackageMutex.Lock()
 	ret, specificReturn := fake.stagePackageReturnsOnCall[len(fake.stagePackageArgsForCall)]
 	fake.stagePackageArgsForCall = append(fake.stagePackageArgsForCall, struct {
-		packageGUID string
-		appName     string
-	}{packageGUID, appName})
-	fake.recordInvocation("StagePackage", []interface{}{packageGUID, appName})
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	fake.recordInvocation("StagePackage", []interface{}{arg1, arg2})
 	fake.stagePackageMutex.Unlock()
 	if fake.StagePackageStub != nil {
-		return fake.StagePackageStub(packageGUID, appName)
+		return fake.StagePackageStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2, ret.result3
 	}
-	return fake.stagePackageReturns.result1, fake.stagePackageReturns.result2, fake.stagePackageReturns.result3
+	fakeReturns := fake.stagePackageReturns
+	return fakeReturns.result1, fakeReturns.result2, fakeReturns.result3
 }
 
 func (fake *FakeV3StageActor) StagePackageCallCount() int {
@@ -180,13 +206,22 @@ func (fake *FakeV3StageActor) StagePackageCallCount() int {
 	return len(fake.stagePackageArgsForCall)
 }
 
+func (fake *FakeV3StageActor) StagePackageCalls(stub func(string, string) (<-chan v7action.Droplet, <-chan v7action.Warnings, <-chan error)) {
+	fake.stagePackageMutex.Lock()
+	defer fake.stagePackageMutex.Unlock()
+	fake.StagePackageStub = stub
+}
+
 func (fake *FakeV3StageActor) StagePackageArgsForCall(i int) (string, string) {
 	fake.stagePackageMutex.RLock()
 	defer fake.stagePackageMutex.RUnlock()
-	return fake.stagePackageArgsForCall[i].packageGUID, fake.stagePackageArgsForCall[i].appName
+	argsForCall := fake.stagePackageArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *FakeV3StageActor) StagePackageReturns(result1 <-chan v7action.Droplet, result2 <-chan v7action.Warnings, result3 <-chan error) {
+	fake.stagePackageMutex.Lock()
+	defer fake.stagePackageMutex.Unlock()
 	fake.StagePackageStub = nil
 	fake.stagePackageReturns = struct {
 		result1 <-chan v7action.Droplet
@@ -196,6 +231,8 @@ func (fake *FakeV3StageActor) StagePackageReturns(result1 <-chan v7action.Drople
 }
 
 func (fake *FakeV3StageActor) StagePackageReturnsOnCall(i int, result1 <-chan v7action.Droplet, result2 <-chan v7action.Warnings, result3 <-chan error) {
+	fake.stagePackageMutex.Lock()
+	defer fake.stagePackageMutex.Unlock()
 	fake.StagePackageStub = nil
 	if fake.stagePackageReturnsOnCall == nil {
 		fake.stagePackageReturnsOnCall = make(map[int]struct {
