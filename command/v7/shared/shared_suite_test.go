@@ -9,5 +9,5 @@ import (
 
 func TestShared(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "V3 Command's Shared Suite")
+	RunSpecs(t, "V7 Command's Shared Suite")
 }
