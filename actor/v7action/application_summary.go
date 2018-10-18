@@ -17,7 +17,7 @@ type ApplicationSummary struct {
 	Application
 	CurrentDroplet   Droplet
 	ProcessSummaries ProcessSummaries
-	Routes           []v2action.Route
+	Routes           v2action.Routes
 }
 
 func (a ApplicationSummary) GetIsolationSegmentName() (string, bool) {
@@ -61,7 +61,7 @@ func (actor Actor) GetApplicationSummaryByNameAndSpaceNew(appName string, spaceG
 		}
 	}
 
-	var appRoutes []v2action.Route
+	var appRoutes v2action.Routes
 	if routeActor != nil {
 		routes, warnings, err := routeActor.GetApplicationRoutes(app.GUID)
 		allWarnings = append(allWarnings, Warnings(warnings)...)
