@@ -101,6 +101,7 @@ func (actor Actor) getProcessSummariesForApp(appGUID string, withObfuscatedValue
 
 		processSummaries = append(processSummaries, processSummary)
 	}
+	processSummaries.Sort()
 
 	return processSummaries, allWarnings, nil
 }

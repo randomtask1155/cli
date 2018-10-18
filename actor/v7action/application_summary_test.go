@@ -12,6 +12,7 @@ import (
 	"code.cloudfoundry.org/cli/types"
 
 	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 )
 
@@ -24,6 +25,43 @@ var _ = Describe("Application Summary Actions", func() {
 	BeforeEach(func() {
 		fakeCloudControllerClient = new(v7actionfakes.FakeCloudControllerClient)
 		actor = NewActor(fakeCloudControllerClient, nil, nil, nil)
+	})
+
+	Describe("ApplicationSummary", func() {
+		DescribeTable("GetIsolationSegmentName",
+			func(summary ApplicationSummary, isoName string, exists bool) {
+				name, ok := summary.GetIsolationSegmentName()
+				Expect(ok).To(Equal(exists))
+				Expect(name).To(Equal(isoName))
+			},
+
+			Entry("when the there are application instances and the isolationSegmentName is set",
+				ApplicationSummary{
+					ProcessSummaries: ProcessSummaries{
+						ProcessSummary{
+							InstanceDetails: []ProcessInstance{
+								{IsolationSegment: "some-name"},
+							},
+						},
+					},
+				},
+				"some-name",
+				true,
+			),
+
+			Entry("when the there are application instances and the isolationSegmentName is blank",
+				ApplicationSummary{
+					ProcessSummaries: ProcessSummaries{
+						ProcessSummary{InstanceDetails: []ProcessInstance{{}}},
+					},
+				},
+				"",
+				false,
+			),
+
+			Entry("when the there are no application instances", ApplicationSummary{ProcessSummaries: ProcessSummaries{{}}}, "", false),
+			Entry("when the there are no processes", ApplicationSummary{}, "", false),
+		)
 	})
 
 	Describe("GetApplicationSummaryByNameAndSpace", func() {
@@ -67,22 +105,38 @@ var _ = Describe("Application Summary Actions", func() {
 
 				When("retrieving the process information is successful", func() {
 					BeforeEach(func() {
-						listedProcess := ccv3.Process{
-							GUID:       "some-process-guid",
-							Type:       "some-type",
-							Command:    "[Redacted Value]",
-							MemoryInMB: types.NullUint64{Value: 32, IsSet: true},
+						listedProcesses := []ccv3.Process{
+							{
+								GUID:       "some-process-guid",
+								Type:       "some-type",
+								Command:    "[Redacted Value]",
+								MemoryInMB: types.NullUint64{Value: 32, IsSet: true},
+							},
+							{
+								GUID:       "some-process-web-guid",
+								Type:       "web",
+								Command:    "[Redacted Value]",
+								MemoryInMB: types.NullUint64{Value: 64, IsSet: true},
+							},
 						}
 						fakeCloudControllerClient.GetApplicationProcessesReturns(
-							[]ccv3.Process{listedProcess},
+							listedProcesses,
 							ccv3.Warnings{"some-process-warning"},
 							nil,
 						)
 
-						explicitlyCalledProcess := listedProcess
+						explicitlyCalledProcess := listedProcesses[0]
 						explicitlyCalledProcess.Command = "some-start-command"
-						fakeCloudControllerClient.GetApplicationProcessByTypeReturns(
+						fakeCloudControllerClient.GetApplicationProcessByTypeReturnsOnCall(
+							0,
 							explicitlyCalledProcess,
+							ccv3.Warnings{"get-process-by-type-warning"},
+							nil,
+						)
+
+						fakeCloudControllerClient.GetApplicationProcessByTypeReturnsOnCall(
+							1,
+							listedProcesses[1],
 							ccv3.Warnings{"get-process-by-type-warning"},
 							nil,
 						)
@@ -141,6 +195,25 @@ var _ = Describe("Application Summary Actions", func() {
 								ProcessSummaries: []ProcessSummary{
 									{
 										Process: Process{
+											GUID:       "some-process-web-guid",
+											Type:       "web",
+											Command:    "[Redacted Value]",
+											MemoryInMB: types.NullUint64{Value: 64, IsSet: true},
+										},
+										InstanceDetails: []ProcessInstance{
+											{
+												State:       constant.ProcessInstanceRunning,
+												CPU:         0.01,
+												MemoryUsage: 1000000,
+												DiskUsage:   2000000,
+												MemoryQuota: 3000000,
+												DiskQuota:   4000000,
+												Index:       0,
+											},
+										},
+									},
+									{
+										Process: Process{
 											GUID:       "some-process-guid",
 											MemoryInMB: types.NullUint64{Value: 32, IsSet: true},
 											Type:       "some-type",
@@ -160,7 +233,7 @@ var _ = Describe("Application Summary Actions", func() {
 									},
 								},
 							}))
-							Expect(warnings).To(ConsistOf("some-warning", "some-process-warning", "get-process-by-type-warning", "some-process-stats-warning", "some-droplet-warning"))
+							Expect(warnings).To(ConsistOf("some-warning", "some-process-warning", "get-process-by-type-warning", "get-process-by-type-warning", "some-process-stats-warning", "some-process-stats-warning", "some-droplet-warning"))
 
 							Expect(fakeCloudControllerClient.GetApplicationsCallCount()).To(Equal(1))
 							Expect(fakeCloudControllerClient.GetApplicationsArgsForCall(0)).To(ConsistOf(
@@ -174,12 +247,12 @@ var _ = Describe("Application Summary Actions", func() {
 							Expect(fakeCloudControllerClient.GetApplicationProcessesCallCount()).To(Equal(1))
 							Expect(fakeCloudControllerClient.GetApplicationProcessesArgsForCall(0)).To(Equal("some-app-guid"))
 
-							Expect(fakeCloudControllerClient.GetApplicationProcessByTypeCallCount()).To(Equal(1))
+							Expect(fakeCloudControllerClient.GetApplicationProcessByTypeCallCount()).To(Equal(2))
 							appGUID, processType := fakeCloudControllerClient.GetApplicationProcessByTypeArgsForCall(0)
 							Expect(appGUID).To(Equal("some-app-guid"))
 							Expect(processType).To(Equal("some-type"))
 
-							Expect(fakeCloudControllerClient.GetProcessInstancesCallCount()).To(Equal(1))
+							Expect(fakeCloudControllerClient.GetProcessInstancesCallCount()).To(Equal(2))
 							Expect(fakeCloudControllerClient.GetProcessInstancesArgsForCall(0)).To(Equal("some-process-guid"))
 						})
 
@@ -197,7 +270,7 @@ var _ = Describe("Application Summary Actions", func() {
 
 							It("returns the error", func() {
 								Expect(executeErr).To(Equal(expectedErr))
-								Expect(warnings).To(ConsistOf("some-warning", "some-process-warning", "get-process-by-type-warning", "some-process-stats-warning", "some-droplet-warning"))
+								Expect(warnings).To(ConsistOf("some-warning", "some-process-warning", "get-process-by-type-warning", "get-process-by-type-warning", "some-process-stats-warning", "some-process-stats-warning", "some-droplet-warning"))
 							})
 						})
 					})
@@ -222,6 +295,25 @@ var _ = Describe("Application Summary Actions", func() {
 								ProcessSummaries: []ProcessSummary{
 									{
 										Process: Process{
+											GUID:       "some-process-web-guid",
+											Type:       "web",
+											Command:    "[Redacted Value]",
+											MemoryInMB: types.NullUint64{Value: 64, IsSet: true},
+										},
+										InstanceDetails: []ProcessInstance{
+											{
+												State:       constant.ProcessInstanceRunning,
+												CPU:         0.01,
+												MemoryUsage: 1000000,
+												DiskUsage:   2000000,
+												MemoryQuota: 3000000,
+												DiskQuota:   4000000,
+												Index:       0,
+											},
+										},
+									},
+									{
+										Process: Process{
 											GUID:       "some-process-guid",
 											MemoryInMB: types.NullUint64{Value: 32, IsSet: true},
 											Type:       "some-type",
@@ -241,27 +333,7 @@ var _ = Describe("Application Summary Actions", func() {
 									},
 								},
 							}))
-							Expect(warnings).To(ConsistOf("some-warning", "some-process-warning", "get-process-by-type-warning", "some-process-stats-warning", "some-droplet-warning"))
-
-							Expect(fakeCloudControllerClient.GetApplicationsCallCount()).To(Equal(1))
-							Expect(fakeCloudControllerClient.GetApplicationsArgsForCall(0)).To(ConsistOf(
-								ccv3.Query{Key: ccv3.NameFilter, Values: []string{"some-app-name"}},
-								ccv3.Query{Key: ccv3.SpaceGUIDFilter, Values: []string{"some-space-guid"}},
-							))
-
-							Expect(fakeCloudControllerClient.GetApplicationDropletCurrentCallCount()).To(Equal(1))
-							Expect(fakeCloudControllerClient.GetApplicationDropletCurrentArgsForCall(0)).To(Equal("some-app-guid"))
-
-							Expect(fakeCloudControllerClient.GetApplicationProcessesCallCount()).To(Equal(1))
-							Expect(fakeCloudControllerClient.GetApplicationProcessesArgsForCall(0)).To(Equal("some-app-guid"))
-
-							Expect(fakeCloudControllerClient.GetApplicationProcessByTypeCallCount()).To(Equal(1))
-							appGUID, processType := fakeCloudControllerClient.GetApplicationProcessByTypeArgsForCall(0)
-							Expect(appGUID).To(Equal("some-app-guid"))
-							Expect(processType).To(Equal("some-type"))
-
-							Expect(fakeCloudControllerClient.GetProcessInstancesCallCount()).To(Equal(1))
-							Expect(fakeCloudControllerClient.GetProcessInstancesArgsForCall(0)).To(Equal("some-process-guid"))
+							Expect(warnings).To(ConsistOf("some-warning", "some-process-warning", "get-process-by-type-warning", "get-process-by-type-warning", "some-process-stats-warning", "some-process-stats-warning", "some-droplet-warning"))
 						})
 					})
 

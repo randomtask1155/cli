@@ -1,8 +1,6 @@
 package v7action
 
 import (
-	"reflect"
-
 	"code.cloudfoundry.org/cli/actor/actionerror"
 	"code.cloudfoundry.org/cli/actor/v2action"
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccerror"
@@ -20,6 +18,19 @@ type ApplicationSummary struct {
 	CurrentDroplet   Droplet
 	ProcessSummaries ProcessSummaries
 	Routes           []v2action.Route
+}
+
+func (a ApplicationSummary) GetIsolationSegmentName() (string, bool) {
+	if a.hasIsolationSegment() {
+		return a.ProcessSummaries[0].InstanceDetails[0].IsolationSegment, true
+	}
+	return "", false
+}
+
+func (a ApplicationSummary) hasIsolationSegment() bool {
+	return len(a.ProcessSummaries) > 0 &&
+		len(a.ProcessSummaries[0].InstanceDetails) > 0 &&
+		len(a.ProcessSummaries[0].InstanceDetails[0].IsolationSegment) > 0
 }
 
 // GetApplicationSummaryByNameAndSpace is temporary until we merge to master.
@@ -51,7 +62,7 @@ func (actor Actor) GetApplicationSummaryByNameAndSpaceNew(appName string, spaceG
 	}
 
 	var appRoutes []v2action.Route
-	if routeActor != nil || (reflect.ValueOf(routeActor).Kind() == reflect.Ptr && reflect.ValueOf(routeActor).IsNil()) {
+	if routeActor != nil {
 		routes, warnings, err := routeActor.GetApplicationRoutes(app.GUID)
 		allWarnings = append(allWarnings, Warnings(warnings)...)
 		if err != nil {
