@@ -14,6 +14,8 @@ import (
 type ProcessInstance struct {
 	// CPU is the current CPU usage of the instance.
 	CPU float64
+	// Details is information about errors placing the instance.
+	Details string
 	// DiskQuota is the maximum disk the instance is allowed to use.
 	DiskQuota uint64
 	// DiskUsage is the current disk usage of the instance.
@@ -39,6 +41,7 @@ type ProcessInstance struct {
 // UnmarshalJSON helps unmarshal a V3 Cloud Controller Instance response.
 func (instance *ProcessInstance) UnmarshalJSON(data []byte) error {
 	var inputInstance struct {
+		Details          string `json:"details"`
 		DiskQuota        uint64 `json:"disk_quota"`
 		Index            int    `json:"index"`
 		IsolationSegment string `json:"isolation_segment"`
@@ -59,6 +62,7 @@ func (instance *ProcessInstance) UnmarshalJSON(data []byte) error {
 	}
 
 	instance.CPU = inputInstance.Usage.CPU
+	instance.Details = inputInstance.Details
 	instance.DiskQuota = inputInstance.DiskQuota
 	instance.DiskUsage = inputInstance.Usage.Disk
 	instance.Index = inputInstance.Index

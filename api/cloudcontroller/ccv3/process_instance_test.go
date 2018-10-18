@@ -98,7 +98,8 @@ var _ = Describe("ProcessInstance", func() {
 							"disk_quota": 4000000,
 							"isolation_segment": "example_iso_segment",
 							"index": 0,
-							"uptime": 123
+							"uptime": 123,
+							"details": "some details"
 						},
 						{
 						  "type": "web",
@@ -130,6 +131,7 @@ var _ = Describe("ProcessInstance", func() {
 				Expect(processes).To(ConsistOf(
 					ProcessInstance{
 						CPU:              0.01,
+						Details:          "some details",
 						DiskQuota:        4000000,
 						DiskUsage:        2000000,
 						Index:            0,
