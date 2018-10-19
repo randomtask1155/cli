@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"code.cloudfoundry.org/bytefmt"
-	"code.cloudfoundry.org/cli/actor/v2v3action"
 	"code.cloudfoundry.org/cli/actor/v7action"
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv3/constant"
 	"code.cloudfoundry.org/cli/command"
@@ -22,7 +21,7 @@ func NewAppSummaryDisplayer2(ui command.UI) *AppSummaryDisplayer2 {
 	}
 }
 
-func (display AppSummaryDisplayer2) AppDisplay(summary v2v3action.ApplicationSummary, displayStartCommand bool) {
+func (display AppSummaryDisplayer2) AppDisplay(summary v7action.ApplicationSummary, displayStartCommand bool) {
 	var isoRow []string
 	if name, exists := summary.GetIsolationSegmentName(); exists {
 		isoRow = append(isoRow, display.UI.TranslateText("isolation segment:"), name)
@@ -47,7 +46,7 @@ func (display AppSummaryDisplayer2) AppDisplay(summary v2v3action.ApplicationSum
 
 	display.UI.DisplayKeyValueTable("", keyValueTable, 3)
 
-	display.displayProcessTable(summary.ApplicationSummary, displayStartCommand)
+	display.displayProcessTable(summary, displayStartCommand)
 }
 
 func (display AppSummaryDisplayer2) displayAppInstancesTable(processSummary v7action.ProcessSummary) {
@@ -109,7 +108,7 @@ func (display AppSummaryDisplayer2) displayProcessTable(summary v7action.Applica
 	}
 }
 
-func (display AppSummaryDisplayer2) getCreatedTime(summary v2v3action.ApplicationSummary) string {
+func (display AppSummaryDisplayer2) getCreatedTime(summary v7action.ApplicationSummary) string {
 	if summary.CurrentDroplet.CreatedAt != "" {
 		timestamp, _ := time.Parse(time.RFC3339, summary.CurrentDroplet.CreatedAt)
 		return display.UI.UserFriendlyDate(timestamp)

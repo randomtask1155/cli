@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"code.cloudfoundry.org/cli/actor/actionerror"
-	"code.cloudfoundry.org/cli/actor/v2v3action"
 	"code.cloudfoundry.org/cli/actor/v7action"
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccv3/constant"
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccversion"
@@ -22,15 +21,14 @@ import (
 
 var _ = Describe("app Command", func() {
 	var (
-		cmd                 v7.AppCommand
-		testUI              *ui.UI
-		fakeConfig          *commandfakes.FakeConfig
-		fakeSharedActor     *commandfakes.FakeSharedActor
-		fakeActor           *v7fakes.FakeAppActor
-		fakeAppSummaryActor *v7fakes.FakeAppSummaryActor
-		binaryName          string
-		executeErr          error
-		app                 string
+		cmd             v7.AppCommand
+		testUI          *ui.UI
+		fakeConfig      *commandfakes.FakeConfig
+		fakeSharedActor *commandfakes.FakeSharedActor
+		fakeActor       *v7fakes.FakeAppActor
+		binaryName      string
+		executeErr      error
+		app             string
 	)
 
 	BeforeEach(func() {
@@ -38,7 +36,6 @@ var _ = Describe("app Command", func() {
 		fakeConfig = new(commandfakes.FakeConfig)
 		fakeSharedActor = new(commandfakes.FakeSharedActor)
 		fakeActor = new(v7fakes.FakeAppActor)
-		fakeAppSummaryActor = new(v7fakes.FakeAppSummaryActor)
 
 		binaryName = "faceman"
 		fakeConfig.BinaryNameReturns(binaryName)
@@ -47,11 +44,10 @@ var _ = Describe("app Command", func() {
 		cmd = v7.AppCommand{
 			RequiredArgs: flag.AppName{AppName: app},
 
-			UI:              testUI,
-			Config:          fakeConfig,
-			SharedActor:     fakeSharedActor,
-			Actor:           fakeActor,
-			AppSummaryActor: fakeAppSummaryActor,
+			UI:          testUI,
+			Config:      fakeConfig,
+			SharedActor: fakeSharedActor,
+			Actor:       fakeActor,
 		}
 
 		fakeConfig.TargetedOrganizationReturns(configv3.Organization{
@@ -186,7 +182,7 @@ var _ = Describe("app Command", func() {
 			BeforeEach(func() {
 				fakeActor.CloudControllerAPIVersionReturns(ccversion.MinVersionApplicationFlowV3)
 				expectedErr = actionerror.ApplicationNotFoundError{Name: app}
-				fakeAppSummaryActor.GetApplicationSummaryByNameAndSpaceReturns(v2v3action.ApplicationSummary{}, v2v3action.Warnings{"warning-1", "warning-2"}, expectedErr)
+				fakeActor.GetApplicationSummaryByNameAndSpaceWithRouterReturns(v7action.ApplicationSummary{}, v7action.Warnings{"warning-1", "warning-2"}, expectedErr)
 			})
 
 			It("returns the error and prints warnings", func() {
@@ -202,42 +198,40 @@ var _ = Describe("app Command", func() {
 		When("getting the application summary is successful", func() {
 			BeforeEach(func() {
 				fakeActor.CloudControllerAPIVersionReturns(ccversion.MinVersionApplicationFlowV3)
-				summary := v2v3action.ApplicationSummary{
-					ApplicationSummary: v7action.ApplicationSummary{
-						Application: v7action.Application{
-							Name:  "some-app",
-							State: constant.ApplicationStarted,
-						},
-						CurrentDroplet: v7action.Droplet{
-							Stack: "cflinuxfs2",
-							Buildpacks: []v7action.Buildpack{
-								{
-									Name:         "ruby_buildpack",
-									DetectOutput: "some-detect-output",
-								},
-								{
-									Name:         "some-buildpack",
-									DetectOutput: "",
-								},
-							},
-						},
-						ProcessSummaries: v7action.ProcessSummaries{
+				summary := v7action.ApplicationSummary{
+					Application: v7action.Application{
+						Name:  "some-app",
+						State: constant.ApplicationStarted,
+					},
+					CurrentDroplet: v7action.Droplet{
+						Stack: "cflinuxfs2",
+						Buildpacks: []v7action.Buildpack{
 							{
-								Process: v7action.Process{
-									Type:    constant.ProcessTypeWeb,
-									Command: "some-command-1",
-								},
+								Name:         "ruby_buildpack",
+								DetectOutput: "some-detect-output",
 							},
 							{
-								Process: v7action.Process{
-									Type:    "console",
-									Command: "some-command-2",
-								},
+								Name:         "some-buildpack",
+								DetectOutput: "",
+							},
+						},
+					},
+					ProcessSummaries: v7action.ProcessSummaries{
+						{
+							Process: v7action.Process{
+								Type:    constant.ProcessTypeWeb,
+								Command: "some-command-1",
+							},
+						},
+						{
+							Process: v7action.Process{
+								Type:    "console",
+								Command: "some-command-2",
 							},
 						},
 					},
 				}
-				fakeAppSummaryActor.GetApplicationSummaryByNameAndSpaceReturns(summary, v2v3action.Warnings{"warning-1", "warning-2"}, nil)
+				fakeActor.GetApplicationSummaryByNameAndSpaceWithRouterReturns(summary, v7action.Warnings{"warning-1", "warning-2"}, nil)
 			})
 
 			It("prints the application summary and outputs warnings", func() {
@@ -251,8 +245,8 @@ var _ = Describe("app Command", func() {
 				Expect(testUI.Err).To(Say("warning-1"))
 				Expect(testUI.Err).To(Say("warning-2"))
 
-				Expect(fakeAppSummaryActor.GetApplicationSummaryByNameAndSpaceCallCount()).To(Equal(1))
-				appName, spaceGUID, withObfuscatedValues := fakeAppSummaryActor.GetApplicationSummaryByNameAndSpaceArgsForCall(0)
+				Expect(fakeActor.GetApplicationSummaryByNameAndSpaceWithRouterCallCount()).To(Equal(1))
+				appName, spaceGUID, withObfuscatedValues, _ := fakeActor.GetApplicationSummaryByNameAndSpaceWithRouterArgsForCall(0)
 				Expect(appName).To(Equal("some-app"))
 				Expect(spaceGUID).To(Equal("some-space-guid"))
 				Expect(withObfuscatedValues).To(BeFalse())

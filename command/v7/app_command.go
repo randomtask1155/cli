@@ -21,9 +21,9 @@ type AppSummaryActor interface {
 //go:generate counterfeiter . AppActor
 
 type AppActor interface {
-	shared.V3AppSummaryActor
 	CloudControllerAPIVersion() string
 	GetApplicationByNameAndSpace(name string, spaceGUID string) (v7action.Application, v7action.Warnings, error)
+	GetApplicationSummaryByNameAndSpaceWithRouter(appName string, spaceGUID string, withObfuscatedValues bool, routeActor v7action.RouteActor) (v7action.ApplicationSummary, v7action.Warnings, error)
 }
 
 type AppCommand struct {
@@ -32,17 +32,18 @@ type AppCommand struct {
 	usage           interface{}  `usage:"CF_NAME app APP_NAME [--guid]"`
 	relatedCommands interface{}  `related_commands:"apps, events, logs, map-route, unmap-route, push"`
 
-	UI              command.UI
-	Config          command.Config
-	SharedActor     command.SharedActor
-	AppSummaryActor AppSummaryActor
-	Actor           AppActor
+	UI          command.UI
+	Config      command.Config
+	SharedActor command.SharedActor
+	RouteActor  v7action.RouteActor
+	Actor       AppActor
 }
 
 func (cmd *AppCommand) Setup(config command.Config, ui command.UI) error {
 	cmd.UI = ui
 	cmd.Config = config
-	cmd.SharedActor = sharedaction.NewActor(config)
+	sharedActor := sharedaction.NewActor(config)
+	cmd.SharedActor = sharedActor
 
 	ccClient, _, err := shared.NewClients(config, ui, true, ccversion.MinVersionApplicationFlowV3)
 	if err != nil {
@@ -54,10 +55,8 @@ func (cmd *AppCommand) Setup(config command.Config, ui command.UI) error {
 		return err
 	}
 
-	v2Actor := v2action.NewActor(ccClientV2, uaaClientV2, config)
-	v3Actor := v7action.NewActor(ccClient, config, nil, nil)
-	cmd.AppSummaryActor = v2v3action.NewActor(v2Actor, v3Actor)
-	cmd.Actor = v3Actor
+	cmd.RouteActor = v2action.NewActor(ccClientV2, uaaClientV2, config)
+	cmd.Actor = v7action.NewActor(ccClient, config, sharedActor, uaaClientV2)
 
 	return nil
 }
@@ -91,7 +90,7 @@ func (cmd AppCommand) Execute(args []string) error {
 	cmd.UI.DisplayNewline()
 
 	appSummaryDisplayer := shared.NewAppSummaryDisplayer2(cmd.UI)
-	summary, warnings, err := cmd.AppSummaryActor.GetApplicationSummaryByNameAndSpace(cmd.RequiredArgs.AppName, cmd.Config.TargetedSpace().GUID, false)
+	summary, warnings, err := cmd.Actor.GetApplicationSummaryByNameAndSpaceWithRouter(cmd.RequiredArgs.AppName, cmd.Config.TargetedSpace().GUID, false, cmd.RouteActor)
 	cmd.UI.DisplayWarnings(warnings)
 	if err != nil {
 		return err
