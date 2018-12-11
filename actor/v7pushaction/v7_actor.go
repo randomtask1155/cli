@@ -10,6 +10,8 @@ import (
 //go:generate counterfeiter . V7Actor
 
 type V7Actor interface {
+	ApplyManifestForApplication(appGUID string, appManifest []byte) (Warnings, error)
+	ApplyManifestForApplications(parser v7action.ManifestParser, spaceGUID string) (Warnings, error)
 	CreateApplicationInSpace(app v7action.Application, spaceGUID string) (v7action.Application, v7action.Warnings, error)
 	CreateBitsPackageByApplication(appGUID string) (v7action.Package, v7action.Warnings, error)
 	CreateDockerPackageByApplication(appGUID string, dockerImageCredentials v7action.DockerImageCredentials) (v7action.Package, v7action.Warnings, error)

@@ -1,6 +1,7 @@
 package v7pushaction
 
 import (
+	"code.cloudfoundry.org/cli/util/manifestparser"
 	"os"
 
 	"code.cloudfoundry.org/cli/actor/actionerror"
@@ -36,6 +37,14 @@ func (actor Actor) Actualize(state PushState, progressBar ProgressBar) (
 			return
 		}
 		stateStream <- state
+
+		parser := manifestparser.NewParser()
+		warnings, err := actor.V7Actor.ApplyManifestForApplications(parser, state.SpaceGUID)
+		warningsStream <- warnings
+		if err != nil {
+			errorStream <- err
+			return
+		}
 
 		err = actor.ScaleProcess(state, warningsStream, eventStream)
 		if err != nil {

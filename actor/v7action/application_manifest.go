@@ -12,9 +12,9 @@ type ManifestParser interface {
 	RawManifest(name string) ([]byte, error)
 }
 
-// ApplyApplicationManifest reads in the manifest from the path and provides it
+// ApplyManifestForApplications reads in the manifest from the path and provides it
 // to the cloud controller.
-func (actor Actor) ApplyApplicationManifest(parser ManifestParser, spaceGUID string) (Warnings, error) {
+func (actor Actor) ApplyManifestForApplications(parser ManifestParser, spaceGUID string) (Warnings, error) {
 	var allWarnings Warnings
 
 	for _, appName := range parser.AppNames() {
@@ -30,23 +30,33 @@ func (actor Actor) ApplyApplicationManifest(parser ManifestParser, spaceGUID str
 			return allWarnings, err
 		}
 
-		jobURL, applyManifestWarnings, err := actor.CloudControllerClient.UpdateApplicationApplyManifest(app.GUID, rawManifest)
+		applyManifestWarnings, err := actor.ApplyManifestForApplication(app.GUID, rawManifest)
 		allWarnings = append(allWarnings, applyManifestWarnings...)
 		if err != nil {
-			return allWarnings, err
-		}
-
-		pollWarnings, err := actor.CloudControllerClient.PollJob(jobURL)
-		allWarnings = append(allWarnings, pollWarnings...)
-		if err != nil {
-			if newErr, ok := err.(ccerror.JobFailedError); ok {
-				return allWarnings, actionerror.ApplicationManifestError{Message: newErr.Message}
-			}
 			return allWarnings, err
 		}
 	}
 
 	return allWarnings, nil
+}
+
+func (actor Actor) ApplyManifestForApplication(appGUID string, appManifest []byte) (Warnings, error) {
+	var allWarnings Warnings
+
+	jobURL, applyManifestWarnings, err := actor.CloudControllerClient.UpdateApplicationApplyManifest(appGUID, appManifest)
+	allWarnings = append(allWarnings, applyManifestWarnings...)
+	if err != nil {
+		return allWarnings, err
+	}
+
+	pollWarnings, err := actor.CloudControllerClient.PollJob(jobURL)
+	allWarnings = append(allWarnings, pollWarnings...)
+	if err != nil {
+		if newErr, ok := err.(ccerror.JobFailedError); ok {
+			return allWarnings, actionerror.ApplicationManifestError{Message: newErr.Message}
+		}
+	}
+	return allWarnings, err
 }
 
 func (actor Actor) GetRawApplicationManifestByNameAndSpace(appName string, spaceGUID string) ([]byte, Warnings, error) {

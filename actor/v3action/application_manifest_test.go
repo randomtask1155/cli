@@ -24,7 +24,7 @@ var _ = Describe("Application Manifest Actions", func() {
 		actor = NewActor(fakeCloudControllerClient, nil, nil, nil)
 	})
 
-	Describe("ApplyApplicationManifest", func() {
+	Describe("ApplyManifestForApplications", func() {
 		var (
 			fakeParser *v3actionfakes.FakeManifestParser
 			spaceGUID  string

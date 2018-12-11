@@ -17,7 +17,7 @@ import (
 	. "github.com/onsi/gomega/gstruct"
 )
 
-var _ = Describe("Push State", func() {
+var _ = FDescribe("Push State", func() {
 	var (
 		actor           *Actor
 		fakeV7Actor     *v7pushactionfakes.FakeV7Actor
@@ -57,6 +57,39 @@ var _ = Describe("Push State", func() {
 
 		JustBeforeEach(func() {
 			states, warnings, executeErr = actor.Conceptualize(appName, spaceGUID, orgGUID, currentDir, flagOverrides)
+		})
+
+		Describe("manifest", func() {
+			When("A manifest doesn't exists", func() {
+
+				BeforeEach(func() {
+					os.Remove("manifest.yml")
+				})
+
+				It("Returns a pushState with the manifest field set to false", func() {
+					Expect(executeErr).To(Not(HaveOccurred()))
+					Expect(states[0].Manifest).To(BeFalse())
+				})
+			})
+
+			When("A manifest exists", func() {
+				BeforeEach(func() {
+					_, err := os.Create("manifest.yml")
+					Expect(err).To(Not(HaveOccurred()))
+				})
+
+				AfterEach(func() {
+					err := os.Remove("manifest.yml")
+					Expect(err).To(Not(HaveOccurred()))
+				})
+
+				It("Returns a pushState with the manifest field set to true", func() {
+					Expect(executeErr).To(Not(HaveOccurred()))
+					Expect(states[0].Manifest).To(BeTrue())
+				})
+			})
+
+
 		})
 
 		Describe("application", func() {

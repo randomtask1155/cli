@@ -2,6 +2,8 @@ package v7pushaction
 
 import (
 	"fmt"
+	"os"
+	"path"
 
 	"code.cloudfoundry.org/cli/actor/actionerror"
 	"code.cloudfoundry.org/cli/actor/sharedaction"
@@ -18,6 +20,7 @@ type PushState struct {
 	Overrides   FlagOverrides
 
 	Archive            bool
+	ManifestPath       string
 	BitsPath           string
 	AllResources       []sharedaction.Resource
 	MatchedResources   []sharedaction.Resource
@@ -80,6 +83,11 @@ func (actor Actor) Conceptualize(appName string, spaceGUID string, orgGUID strin
 		bitsPath = flagOverrides.ProvidedAppPath
 	}
 
+	manifestPath, err := getManifestPath(currentDir)
+	if err != nil {
+		return nil, Warnings(warnings), err
+	}
+
 	resources, err := actor.SharedActor.GatherDirectoryResources(bitsPath)
 
 	desiredState := []PushState{
@@ -89,9 +97,23 @@ func (actor Actor) Conceptualize(appName string, spaceGUID string, orgGUID strin
 			OrgGUID:     orgGUID,
 			Overrides:   flagOverrides,
 
+			ManifestPath: manifestPath,
 			BitsPath:     bitsPath,
 			AllResources: resources,
 		},
 	}
 	return desiredState, Warnings(warnings), err
+}
+
+func getManifestPath(currentDir string) (string, error) {
+	manifestPath := path.Join(currentDir, "manifest.yml")
+
+	if _, manifestErr := os.Stat(manifestPath); manifestErr != nil {
+		if os.IsNotExist(manifestErr) {
+			return "", nil
+		} else {
+			return "", manifestErr
+		}
+	}
+	return manifestPath, nil
 }

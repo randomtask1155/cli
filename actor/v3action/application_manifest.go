@@ -12,7 +12,7 @@ type ManifestParser interface {
 	RawManifest(name string) ([]byte, error)
 }
 
-// ApplyApplicationManifest reads in the manifest from the path and provides it
+// ApplyManifestForApplications reads in the manifest from the path and provides it
 // to the cloud controller.
 func (actor Actor) ApplyApplicationManifest(parser ManifestParser, spaceGUID string) (Warnings, error) {
 	var allWarnings Warnings

@@ -44,7 +44,7 @@ func (fake *FakeV3ApplyManifestActor) ApplyApplicationManifest(arg1 v3action.Man
 		arg1 v3action.ManifestParser
 		arg2 string
 	}{arg1, arg2})
-	fake.recordInvocation("ApplyApplicationManifest", []interface{}{arg1, arg2})
+	fake.recordInvocation("ApplyManifestForApplications", []interface{}{arg1, arg2})
 	fake.applyApplicationManifestMutex.Unlock()
 	if fake.ApplyApplicationManifestStub != nil {
 		return fake.ApplyApplicationManifestStub(arg1, arg2)

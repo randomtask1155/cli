@@ -24,7 +24,7 @@ var _ = Describe("Application Manifest Actions", func() {
 		actor = NewActor(fakeCloudControllerClient, nil, nil, nil)
 	})
 
-	Describe("ApplyApplicationManifest", func() {
+	Describe("ApplyManifestForApplications", func() {
 		var (
 			fakeParser *v7actionfakes.FakeManifestParser
 			spaceGUID  string
@@ -39,7 +39,7 @@ var _ = Describe("Application Manifest Actions", func() {
 		})
 
 		JustBeforeEach(func() {
-			warnings, executeErr = actor.ApplyApplicationManifest(fakeParser, spaceGUID)
+			warnings, executeErr = actor.ApplyManifestForApplications(fakeParser, spaceGUID)
 		})
 
 		When("given at least one application", func() {
@@ -198,6 +198,116 @@ var _ = Describe("Application Manifest Actions", func() {
 			It("does nothing", func() {
 				Expect(executeErr).ToNot(HaveOccurred())
 				Expect(warnings).To(BeEmpty())
+			})
+		})
+	})
+
+	Describe("ApplyManifestForApplication", func() {
+		var (
+			appGUID     string
+			appManifest []byte
+
+			warnings    Warnings
+			executeErr  error
+		)
+
+		BeforeEach(func() {
+			appGUID = "app-1-guid"
+			appManifest = []byte("---\n-some-manifest-contents")
+
+			fakeCloudControllerClient.GetApplicationsReturns(
+				[]ccv3.Application{{GUID: "app-1-guid"}},
+				ccv3.Warnings{"app-1-warning"},
+				nil,
+			)
+		})
+
+		JustBeforeEach(func() {
+			warnings, executeErr = actor.ApplyManifestForApplication(appGUID, appManifest)
+		})
+
+		When("applying the manifest succeeds", func() {
+			BeforeEach(func() {
+				fakeCloudControllerClient.UpdateApplicationApplyManifestReturns(
+					"some-job-url",
+					ccv3.Warnings{"apply-manifest-1-warning"},
+					nil,
+				)
+			})
+
+			When("polling finishes successfully", func() {
+				BeforeEach(func() {
+					fakeCloudControllerClient.PollJobReturns(
+						ccv3.Warnings{"poll-1-warning"},
+						nil,
+					)
+				})
+
+				It("uploads the app manifest", func() {
+					Expect(executeErr).ToNot(HaveOccurred())
+					Expect(warnings).To(ConsistOf("apply-manifest-1-warning", "poll-1-warning"))
+
+					Expect(fakeCloudControllerClient.UpdateApplicationApplyManifestCallCount()).To(Equal(1))
+					guidInCall, actualAppManifest := fakeCloudControllerClient.UpdateApplicationApplyManifestArgsForCall(0)
+					Expect(guidInCall).To(Equal("app-1-guid"))
+					Expect(actualAppManifest).To(Equal(appManifest))
+
+					Expect(fakeCloudControllerClient.PollJobCallCount()).To(Equal(1))
+					jobURL := fakeCloudControllerClient.PollJobArgsForCall(0)
+					Expect(jobURL).To(Equal(ccv3.JobURL("some-job-url")))
+				})
+			})
+
+			When("polling returns a generic error", func() {
+				var expectedErr error
+
+				BeforeEach(func() {
+					expectedErr = errors.New("poll-1-error")
+					fakeCloudControllerClient.PollJobReturns(
+						ccv3.Warnings{"poll-1-warning"},
+						expectedErr,
+					)
+				})
+
+				It("reports a polling error", func() {
+					Expect(executeErr).To(Equal(expectedErr))
+					Expect(warnings).To(ConsistOf( "apply-manifest-1-warning", "poll-1-warning"))
+				})
+			})
+
+			When("polling returns an job failed error", func() {
+				var expectedErr error
+
+				BeforeEach(func() {
+					expectedErr = ccerror.JobFailedError{Message: "some-job-failed"}
+					fakeCloudControllerClient.PollJobReturns(
+						ccv3.Warnings{"poll-1-warning"},
+						expectedErr,
+					)
+				})
+
+				It("reports a polling error", func() {
+					Expect(executeErr).To(Equal(actionerror.ApplicationManifestError{Message: "some-job-failed"}))
+					Expect(warnings).To(ConsistOf("apply-manifest-1-warning", "poll-1-warning"))
+				})
+			})
+		})
+
+		When("applying the manifest errors", func() {
+			var applyErr error
+
+			BeforeEach(func() {
+				applyErr = errors.New("some-apply-manifest-error")
+				fakeCloudControllerClient.UpdateApplicationApplyManifestReturns(
+					"",
+					ccv3.Warnings{"apply-manifest-1-warning"},
+					applyErr,
+				)
+			})
+
+			It("reports a error trying to apply the manifest", func() {
+				Expect(executeErr).To(Equal(applyErr))
+				Expect(warnings).To(ConsistOf( "apply-manifest-1-warning"))
 			})
 		})
 	})
