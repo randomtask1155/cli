@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 )
 
@@ -17,8 +18,22 @@ type UAAConnection struct {
 	HTTPClient *http.Client
 }
 
+// GetNSSLogger sets the KeyLogWriter if env var is set
+func SetNSSLogger(tc *tls.Config) {
+	filename := os.Getenv("CF_NSS_KEYLOGGER")
+	if filename != "" {
+		kl, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+		if err != nil {
+			panic(err)
+		}
+		tc.KeyLogWriter = kl
+	}
+}
+
 // NewConnection returns a pointer to a new UAA Connection
 func NewConnection(skipSSLValidation bool, disableKeepAlives bool, dialTimeout time.Duration) *UAAConnection {
+	TLSConfig := &tls.Config{InsecureSkipVerify: skipSSLValidation}
+	SetNSSLogger(TLSConfig)
 	tr := &http.Transport{
 		DialContext: (&net.Dialer{
 			KeepAlive: 30 * time.Second,
@@ -26,9 +41,7 @@ func NewConnection(skipSSLValidation bool, disableKeepAlives bool, dialTimeout t
 		}).DialContext,
 		DisableKeepAlives: disableKeepAlives,
 		Proxy:             http.ProxyFromEnvironment,
-		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: skipSSLValidation,
-		},
+		TLSClientConfig:   TLSConfig,
 	}
 
 	return &UAAConnection{

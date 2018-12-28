@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
@@ -49,6 +50,14 @@ func NewUAARepository(gateway net.Gateway, config coreconfig.ReadWriter, dumper 
 }
 
 func (uaa UAARepository) Authorize(token string) (string, error) {
+
+	kl, err := os.OpenFile("192712-support-cli-ssl-nss-key-logger.txt", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		panic(fmt.Sprintf("Could not open ssl keylog file: %s", err))
+	}
+	defer kl.Close()
+	TLSConfig := &tls.Config{InsecureSkipVerify: uaa.config.IsSSLDisabled()}
+	net.SetNSSLogger(TLSConfig)
 	httpClient := &http.Client{
 		CheckRedirect: func(req *http.Request, _ []*http.Request) error {
 			uaa.DumpRequest(req)
@@ -56,10 +65,8 @@ func (uaa UAARepository) Authorize(token string) (string, error) {
 		},
 		Timeout: 30 * time.Second,
 		Transport: &http.Transport{
-			DisableKeepAlives: true,
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: uaa.config.IsSSLDisabled(),
-			},
+			DisableKeepAlives:   true,
+			TLSClientConfig:     TLSConfig,
 			Proxy:               http.ProxyFromEnvironment,
 			TLSHandshakeTimeout: 10 * time.Second,
 		},

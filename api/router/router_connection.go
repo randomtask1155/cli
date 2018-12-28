@@ -13,6 +13,7 @@ import (
 
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccerror"
 	"code.cloudfoundry.org/cli/api/router/routererror"
+	cfnet "code.cloudfoundry.org/cli/cf/net"
 )
 
 // ConnectionConfig is for configuring the RouterConnection
@@ -28,11 +29,11 @@ type RouterConnection struct {
 
 // NewConnection returns a pointer to a new RouterConnection with the provided configuration
 func NewConnection(config ConnectionConfig) *RouterConnection {
+	TLSConfig := &tls.Config{InsecureSkipVerify: config.SkipSSLValidation}
+	cfnet.SetNSSLogger(TLSConfig)
 	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: config.SkipSSLValidation,
-		},
-		Proxy: http.ProxyFromEnvironment,
+		TLSClientConfig: TLSConfig,
+		Proxy:           http.ProxyFromEnvironment,
 		DialContext: (&net.Dialer{
 			KeepAlive: 30 * time.Second,
 			Timeout:   config.DialTimeout,

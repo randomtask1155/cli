@@ -225,11 +225,13 @@ func (repo CloudControllerBuildpackBitsRepository) downloadBuildpack(url string,
 			}
 		}
 
+		TLSConfig := &tls.Config{RootCAs: certPool}
+		net.SetNSSLogger(TLSConfig)
 		client := &http.Client{
 			Transport: &http.Transport{
 				DisableKeepAlives: true,
 				Dial:              (&gonet.Dialer{Timeout: 5 * time.Second}).Dial,
-				TLSClientConfig:   &tls.Config{RootCAs: certPool},
+				TLSClientConfig:   TLSConfig,
 				Proxy:             http.ProxyFromEnvironment,
 			},
 		}

@@ -7,6 +7,7 @@ import (
 
 	"code.cloudfoundry.org/cli/api/uaa"
 	"code.cloudfoundry.org/cli/api/uaa/noaabridge"
+	"code.cloudfoundry.org/cli/cf/net"
 	"code.cloudfoundry.org/cli/command"
 	"github.com/cloudfoundry/noaa/consumer"
 )
@@ -39,11 +40,11 @@ func (p DebugPrinter) Print(title string, dump string) {
 
 // NewNOAAClient returns back a configured NOAA Client.
 func NewNOAAClient(apiURL string, config command.Config, uaaClient *uaa.Client, ui command.UI) *consumer.Consumer {
+	TLSConfig := &tls.Config{InsecureSkipVerify: config.SkipSSLValidation()}
+	net.SetNSSLogger(TLSConfig)
 	client := consumer.New(
 		apiURL,
-		&tls.Config{
-			InsecureSkipVerify: config.SkipSSLValidation(),
-		},
+		TLSConfig,
 		http.ProxyFromEnvironment,
 	)
 	client.RefreshTokenFrom(noaabridge.NewTokenRefresher(uaaClient, config))

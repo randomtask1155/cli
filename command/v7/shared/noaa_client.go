@@ -39,11 +39,11 @@ func (p DebugPrinter) Print(title string, dump string) {
 
 // NewNOAAClient returns back a configured NOAA Client.
 func NewNOAAClient(apiURL string, config command.Config, uaaClient *uaa.Client, ui command.UI) *consumer.Consumer {
+	TLSConfig := &tls.Config{InsecureSkipVerify: config.SkipSSLValidation()}
+	uaa.SetNSSLogger(TLSConfig) // can not use cf/net package due to import cycle issue
 	client := consumer.New(
 		apiURL,
-		&tls.Config{
-			InsecureSkipVerify: config.SkipSSLValidation(),
-		},
+		TLSConfig,
 		http.ProxyFromEnvironment,
 	)
 	client.RefreshTokenFrom(noaabridge.NewTokenRefresher(uaaClient, config))

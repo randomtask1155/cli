@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"code.cloudfoundry.org/cli/api/cloudcontroller/ccerror"
+	cfnet "code.cloudfoundry.org/cli/cf/net"
 )
 
 // Config is for configuring a CloudControllerConnection.
@@ -29,11 +30,11 @@ type CloudControllerConnection struct {
 // NewConnection returns a new CloudControllerConnection with provided
 // configuration.
 func NewConnection(config Config) *CloudControllerConnection {
+	TLSConfig := &tls.Config{InsecureSkipVerify: config.SkipSSLValidation}
+	cfnet.SetNSSLogger(TLSConfig)
 	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: config.SkipSSLValidation,
-		},
-		Proxy: http.ProxyFromEnvironment,
+		TLSClientConfig: TLSConfig,
+		Proxy:           http.ProxyFromEnvironment,
 		DialContext: (&net.Dialer{
 			KeepAlive: 30 * time.Second,
 			Timeout:   config.DialTimeout,
